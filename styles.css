@@ -1,11 +1,9 @@
 /* ================================================
    WEDDING LANDING PAGE — Fine Art / Minimalist
-   Gold + Collage in Message + Brush Mask Modal
+   v3: Glassmorphism + Word Animation + Carousel
    ================================================ */
 
-/* ---------- CSS CUSTOM PROPERTIES ---------- */
 :root {
-  /* Neutral palette */
   --sand: #D4C5A9;
   --sand-light: #E8DFD0;
   --sand-pale: #F3EDE4;
@@ -15,33 +13,21 @@
   --gray-text: #5A5A55;
   --gray-dark: #3A3A36;
   --charcoal: #2C2C28;
-
-  /* Gold accent palette */
   --gold: #C6A96C;
   --gold-light: #D4BC82;
   --gold-dark: #A8894E;
   --gold-pale: #E8D5A3;
-
-  /* Typography */
   --ff-serif: 'Cormorant Garamond', 'Georgia', serif;
   --ff-sans: 'Questrial', 'Helvetica Neue', Arial, sans-serif;
-
-  /* Spacing scale */
   --space-xs: 0.5rem;
   --space-sm: 1rem;
   --space-md: 2rem;
   --space-lg: 4rem;
   --space-xl: 6rem;
-  --space-2xl: 8rem;
-
-  /* Misc */
-  --radius: 12px;
-  --radius-lg: 20px;
   --transition: 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --shadow: 0 4px 30px rgba(0, 0, 0, 0.06);
 }
 
-/* ---------- RESET & BASE ---------- */
+/* ---------- RESET ---------- */
 *,
 *::before,
 *::after {
@@ -81,7 +67,7 @@ a {
   text-decoration: none;
 }
 
-/* ---------- UTILITY / LAYOUT ---------- */
+/* ---------- UTILITY ---------- */
 .container {
   width: 90%;
   max-width: 800px;
@@ -112,17 +98,13 @@ a {
   margin-bottom: var(--space-md);
 }
 
-/* ---------- GOLD TEXT & SHIMMER ---------- */
+/* ---------- GOLD & SHIMMER ---------- */
 .gold-text {
   color: var(--gold);
 }
 
 .shimmer-text {
-  background: linear-gradient(110deg,
-      var(--gold) 0%,
-      var(--gold-pale) 40%,
-      var(--gold) 60%,
-      var(--gold-dark) 100%);
+  background: linear-gradient(110deg, var(--gold) 0%, var(--gold-pale) 40%, var(--gold) 60%, var(--gold-dark) 100%);
   background-size: 250% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -135,31 +117,40 @@ a {
   background-position: -100% 0;
 }
 
-/* ---------- WIND / SCROLL REVEAL ---------- */
+/* ---------- SCROLL REVEAL ---------- */
 .reveal {
   opacity: 0;
-  transform: translateX(-20px);
-  transition:
-    opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translateY(15px);
+  transition: opacity 1s cubic-bezier(0.22, 1, 0.36, 1), transform 1s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .reveal--visible {
   opacity: 1;
-  transform: translateX(0);
+  transform: translateY(0);
 }
 
-.reveal:nth-child(even) {
-  transform: translateX(20px);
+/* ---------- WORD-BY-WORD REVEAL ---------- */
+.word-reveal .word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1), transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  /* delay is set inline via JS */
 }
 
-.reveal--visible:nth-child(even) {
-  transform: translateX(0);
+.word-reveal.words-visible .word {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-/* ===========================
+/* Preserve whitespace between words */
+.word-reveal .word+.word {
+  margin-left: 0.28em;
+}
+
+/* =============================
    HERO — Single Capa.jpeg
-   =========================== */
+   ============================= */
 .hero {
   position: relative;
   min-height: 100vh;
@@ -188,11 +179,7 @@ a {
 .hero__overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom,
-      rgba(250, 247, 242, 0) 0%,
-      rgba(250, 247, 242, 0.3) 40%,
-      rgba(250, 247, 242, 0.85) 75%,
-      rgba(250, 247, 242, 1) 100%);
+  background: linear-gradient(to bottom, rgba(250, 247, 242, 0) 0%, rgba(250, 247, 242, 0.3) 40%, rgba(250, 247, 242, 0.85) 75%, rgba(250, 247, 242, 1) 100%);
 }
 
 .hero__content {
@@ -333,81 +320,95 @@ a {
   font-size: 0.95rem;
 }
 
-/* ===========================
-   MESSAGE — with Photo Collage
-   =========================== */
+/* =============================
+   MESSAGE — Carousel + Text Split
+   ============================= */
 .message {
-  text-align: center;
-}
-
-/* Collage grid layout */
-.collage {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(3, 280px);
-  gap: 6px;
-  max-width: 1100px;
-  margin: 0 auto var(--space-lg);
-  padding: 0 var(--space-sm);
-}
-
-/* Main photo spans 2 cols x 2 rows */
-.collage__item--main {
-  grid-column: span 2;
-  grid-row: span 2;
-}
-
-.collage__item {
+  padding: 0;
   overflow: hidden;
-  border-radius: 6px;
 }
 
-.collage__item img {
+.message__split {
+  display: flex;
+  min-height: 85vh;
+}
+
+/* Carousel wrapper — left side, edge to ~55% */
+.message__carousel-wrap {
+  position: relative;
+  width: 55%;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.message__carousel {
+  display: flex;
+  height: 100%;
+  transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.carousel__slide {
+  flex: 0 0 100%;
+  height: 100%;
+}
+
+.carousel__slide img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   filter: grayscale(100%) contrast(1.05);
-  transition: transform 1.2s ease, filter 1.2s ease;
   image-rendering: high-quality;
   image-rendering: -webkit-optimize-contrast;
 }
 
-.collage__item:hover img {
-  transform: scale(1.05);
-  filter: grayscale(50%) contrast(1.02);
+/* White fade gradient on right edge of carousel */
+.message__carousel-fade {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(to right, transparent 0%, rgba(250, 247, 242, 0.5) 40%, rgba(250, 247, 242, 0.92) 80%, var(--cream) 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Text wrapper — right side, inside fade area */
+.message__text-wrap {
+  width: 45%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--space-lg) var(--space-lg) var(--space-lg) var(--space-md);
+  position: relative;
+  z-index: 3;
 }
 
 .message__quote {
   font-family: var(--ff-serif);
-  font-size: clamp(1.1rem, 3vw, 1.6rem);
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
   font-weight: 300;
   font-style: italic;
   color: var(--charcoal);
-  line-height: 1.6;
-  margin-bottom: var(--space-md);
-  max-width: 620px;
-  margin-left: auto;
-  margin-right: auto;
+  line-height: 1.55;
+  margin-bottom: var(--space-xs);
 }
 
-.message__quote cite {
+.message__cite {
   display: block;
-  font-size: 0.8rem;
+  font-family: var(--ff-sans);
+  font-size: 0.75rem;
   font-style: normal;
   color: var(--gold);
-  margin-top: var(--space-xs);
   letter-spacing: 0.1em;
+  margin-bottom: var(--space-md);
 }
 
-.message__text {
-  max-width: 640px;
-  margin: 0 auto;
-}
-
-.message__text p {
+.message__body p {
   margin-bottom: var(--space-sm);
   color: var(--gray-text);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  line-height: 1.75;
 }
 
 /* ---------- RSVP TRIGGER ---------- */
@@ -434,7 +435,8 @@ a {
   text-transform: uppercase;
   letter-spacing: 0.2em;
   border: none;
-  border-radius: 50px;
+  border-radius: 0;
+  /* SQUARE corners */
   cursor: pointer;
   transition: all var(--transition);
 }
@@ -469,6 +471,7 @@ a {
   font-size: 0.7rem;
   background: var(--sand-pale);
   color: var(--gray-dark);
+  border-radius: 0;
 }
 
 .btn--small:hover {
@@ -497,7 +500,8 @@ a {
 .gift-card {
   background: var(--cream);
   border: 1px solid rgba(212, 197, 169, 0.35);
-  border-radius: var(--radius-lg);
+  border-radius: 0;
+  /* SQUARE */
   padding: var(--space-md) var(--space-sm);
   text-align: center;
   cursor: pointer;
@@ -548,7 +552,11 @@ a {
   letter-spacing: 0.1em;
 }
 
-/* ---------- GIFT MODAL ---------- */
+/* ============================================
+   MODALS — Glassmorphism, square corners
+   ============================================ */
+
+/* --- GIFT MODAL --- */
 .modal {
   position: fixed;
   inset: 0;
@@ -569,14 +577,19 @@ a {
 .modal__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(42, 42, 38, 0.4);
-  backdrop-filter: blur(6px);
+  background: rgba(42, 42, 38, 0.3);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
 }
 
 .modal__content {
   position: relative;
-  background: var(--cream);
-  border-radius: var(--radius-lg);
+  background: rgba(250, 247, 242, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0;
+  /* SQUARE */
   padding: var(--space-lg) var(--space-md);
   max-width: 420px;
   width: 90%;
@@ -628,8 +641,8 @@ a {
 }
 
 .modal__pix {
-  background: var(--sand-pale);
-  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 0;
   padding: var(--space-sm);
 }
 
@@ -651,17 +664,12 @@ a {
   font-family: monospace;
   font-size: 0.85rem;
   color: var(--charcoal);
-  background: var(--warm-white);
+  background: rgba(255, 255, 255, 0.5);
   padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--sand-light);
+  border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
-/* ============================================
-   RSVP MODAL — Full viewport, no scroll
-   SVG Brush Mask zigzag diagonal reveal
-   Form overlays image after reveal
-   ============================================ */
+/* --- RSVP MODAL --- */
 .rsvp-modal {
   position: fixed;
   inset: 0;
@@ -682,20 +690,23 @@ a {
 .rsvp-modal__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(42, 42, 38, 0.6);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(42, 42, 38, 0.35);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
 }
 
 .rsvp-modal__stage {
   position: relative;
   width: 92%;
   max-width: 550px;
-  border-radius: var(--radius-lg);
+  border-radius: 0;
+  /* SQUARE */
   overflow: hidden;
-  /* NO SCROLLBAR */
-  background: white;
-  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.25);
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.2);
 }
 
 .rsvp-modal__close {
@@ -703,7 +714,7 @@ a {
   top: 12px;
   right: 14px;
   z-index: 20;
-  background: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(8px);
   border: none;
   font-size: 1.6rem;
@@ -712,7 +723,7 @@ a {
   line-height: 1;
   width: 36px;
   height: 36px;
-  border-radius: 50%;
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -720,11 +731,10 @@ a {
 }
 
 .rsvp-modal__close:hover {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.9);
   transform: scale(1.1);
 }
 
-/* Canvas: contains image + form overlay */
 .rsvp-modal__canvas {
   position: relative;
   width: 100%;
@@ -732,7 +742,6 @@ a {
   background: white;
 }
 
-/* SVG fills entire canvas */
 .rsvp-modal__svg {
   position: absolute;
   inset: 0;
@@ -740,10 +749,8 @@ a {
   height: 100%;
   display: block;
   background: white;
-  /* WHITE background behind image */
 }
 
-/* Form OVERLAY — positioned on top of image */
 .rsvp-modal__overlay {
   position: absolute;
   inset: 0;
@@ -762,15 +769,17 @@ a {
 }
 
 .rsvp-modal__form-inner {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: var(--radius-lg);
-  padding: var(--space-md) var(--space-md);
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 0;
+  /* SQUARE */
+  padding: var(--space-md);
   width: 88%;
   max-width: 380px;
   text-align: center;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
   transform: translateY(30px);
   transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -810,9 +819,9 @@ a {
   font-size: 0.9rem;
   letter-spacing: 0.03em;
   color: var(--charcoal);
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.7);
   border: 1px solid var(--sand-light);
-  border-radius: var(--radius);
+  border-radius: 0;
   outline: none;
   transition: border-color var(--transition), box-shadow var(--transition);
 }
@@ -881,7 +890,6 @@ a {
 .rsvp-modal__feedback {
   font-size: 0.85rem;
   min-height: 1.2em;
-  transition: opacity var(--transition);
 }
 
 .rsvp-modal__feedback--success {
@@ -930,14 +938,29 @@ a {
     padding: var(--space-lg) 0;
   }
 
-  .collage {
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(4, 140px);
+  .message__split {
+    flex-direction: column;
+    min-height: auto;
   }
 
-  .collage__item--main {
-    grid-column: span 2;
-    grid-row: span 2;
+  .message__carousel-wrap {
+    width: 100%;
+    height: 55vh;
+    position: relative;
+  }
+
+  .message__carousel-fade {
+    width: 100%;
+    height: 30%;
+    top: auto;
+    right: auto;
+    bottom: 0;
+    background: linear-gradient(to bottom, transparent 0%, rgba(250, 247, 242, 0.7) 50%, var(--cream) 100%);
+  }
+
+  .message__text-wrap {
+    width: 100%;
+    padding: var(--space-md);
   }
 
   .nav__list {
@@ -963,10 +986,6 @@ a {
     padding: var(--space-sm);
   }
 
-  .hide-mobile {
-    display: none;
-  }
-
   .rsvp-modal__options {
     flex-direction: column;
     align-items: center;
@@ -983,16 +1002,6 @@ a {
 }
 
 @media (max-width: 480px) {
-  .collage {
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: auto;
-    gap: 4px;
-  }
-
-  .collage__item--main {
-    grid-column: 1 / -1;
-  }
-
   .countdown__separator {
     font-size: 1.2rem;
   }

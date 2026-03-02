@@ -8,7 +8,6 @@
   <meta name="description"
     content="Estamos nos casando! Confira todos os detalhes e confirme sua presença nessa celebração especial." />
 
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -20,7 +19,7 @@
 
 <body>
 
-  <!-- ========== HERO / HEADER ========== -->
+  <!-- ========== HERO ========== -->
   <header id="hero" class="section hero">
     <div class="hero__image-wrapper">
       <img src="Fotos/Capa.jpeg" alt="Foto do casal" class="hero__image" />
@@ -28,7 +27,7 @@
     </div>
 
     <div class="hero__content reveal">
-      <p class="hero__intro">O nosso para sempre começa em…</p>
+      <p class="hero__intro word-reveal">O nosso para sempre começa em…</p>
 
       <div class="countdown" id="countdown">
         <div class="countdown__block">
@@ -53,13 +52,13 @@
       </div>
 
       <p class="hero__verse">
-        <em>"O Senhor fez tudo apropriado ao seu tempo."</em><br />
+        <em class="word-reveal">"O Senhor fez tudo apropriado ao seu tempo."</em><br />
         <span class="hero__verse-ref shimmer-text">— Eclesiastes 3:11</span>
       </p>
     </div>
   </header>
 
-  <!-- ========== NAVEGAÇÃO FIXA ========== -->
+  <!-- ========== NAV ========== -->
   <nav id="nav" class="nav">
     <ul class="nav__list">
       <li><a href="#historia" class="nav__link">Nossa História</a></li>
@@ -69,25 +68,25 @@
     </ul>
   </nav>
 
-  <!-- ========== APRESENTAÇÃO / HISTÓRIA ========== -->
+  <!-- ========== HISTÓRIA ========== -->
   <section id="historia" class="section story">
     <div class="container">
       <div class="reveal">
         <span class="section__label shimmer-text">Nossa História</span>
-        <h2 class="section__title">Existem histórias que nascem do acaso.<br />A nossa nasceu de propósito.</h2>
+        <h2 class="section__title word-reveal">Existem histórias que nascem do acaso. A nossa nasceu de propósito.</h2>
       </div>
       <div class="story__text reveal">
-        <p>
+        <p class="word-reveal">
           Existem histórias que nascem do acaso. A nossa nasceu de propósito — do propósito de Deus.
           Antes de nos encontrarmos, Ele já havia escrito cada detalhe: o momento, o lugar, o sorriso
           certo na hora exata. E quando os nossos caminhos finalmente se cruzaram, tudo fez sentido.
         </p>
-        <p>
+        <p class="word-reveal">
           O que veio depois foi um caminho lindo de cumplicidade, risadas, desafios e muito amor.
           Aprendemos juntos, crescemos juntos, e hoje olhamos para trás com o coração grato por cada
           passo que nos trouxe até aqui.
         </p>
-        <p>
+        <p class="word-reveal">
           Agora, estamos prontos para dar o nosso próximo passo — diante de Deus, das nossas famílias
           e de quem sempre esteve ao nosso lado. E é por isso que este convite é tão especial:
           porque ele não é apenas sobre um evento, é sobre celebrar com vocês uma promessa de amor
@@ -97,64 +96,48 @@
     </div>
   </section>
 
-  <!-- ========== MENSAGEM ESPECIAL (com collage) ========== -->
+  <!-- ========== MENSAGEM (Carousel + Text split) ========== -->
   <section id="mensagem" class="section message">
-    <!-- Photo Collage -->
-    <div class="collage reveal">
-      <div class="collage__item collage__item--main">
-        <img src="Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (5).jpeg" alt="Close íntimo" loading="lazy" />
+    <div class="message__split">
+      <!-- Left: Photo Carousel -->
+      <div class="message__carousel-wrap">
+        <div class="message__carousel" id="photo-carousel">
+          <!-- Slides injected by JS -->
+        </div>
+        <div class="message__carousel-fade"></div>
       </div>
-      <div class="collage__item">
-        <img src="Fotos/WhatsApp Image 2026-02-28 at 17.24.10.jpeg" alt="Abraço no capim" loading="lazy" />
-      </div>
-      <div class="collage__item">
-        <img src="Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (20).jpeg" alt="Caminhada paisagem" loading="lazy" />
-      </div>
-      <div class="collage__item">
-        <img src="Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (30).jpeg" alt="Correndo juntos" loading="lazy" />
-      </div>
-      <div class="collage__item">
-        <img src="Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (1).jpeg" alt="Silhueta montanha" loading="lazy" />
-      </div>
-      <div class="collage__item">
-        <img src="Fotos/capa principal.jpeg" alt="Dreamy deitados" loading="lazy" />
-      </div>
-      <div class="collage__item">
-        <img src="Fotos/WhatsApp Image 2026-02-28 at 17.24.09.jpeg" alt="Piggyback no campo" loading="lazy" />
-      </div>
-    </div>
 
-    <div class="container">
-      <div class="reveal">
+      <!-- Right: Text content inside white fade -->
+      <div class="message__text-wrap">
         <span class="section__label shimmer-text">Mensagem Especial</span>
-        <blockquote class="message__quote">
-          "Para que todos vejam e saibam, considerem e juntamente entendam<br class="hide-mobile" />
+        <blockquote class="message__quote word-reveal">
+          "Para que todos vejam e saibam, considerem e juntamente entendam
           que a mão do Senhor fez isso."
-          <cite>— Isaías 41:20</cite>
         </blockquote>
-      </div>
-      <div class="message__text reveal">
-        <p>
-          Cada momento da nossa jornada nos trouxe até aqui — e esse convite é a forma mais sincera
-          que encontramos de dizer: vocês fazem parte disso. A nossa história é também a história de
-          quem caminhou ao nosso lado, orou por nós, nos amou e acreditou nesse sonho junto conosco.
-        </p>
-        <p>
-          Este é um convite reservado e pessoal. Ele foi feito especialmente para você, porque a
-          sua presença não é apenas desejada — ela é essencial. Queremos que esteja conosco nesse
-          dia, não como espectador, mas como parte viva de tudo o que celebramos.
-        </p>
+        <cite class="message__cite">— Isaías 41:20</cite>
+        <div class="message__body">
+          <p class="word-reveal">
+            Cada momento da nossa jornada nos trouxe até aqui — e esse convite é a forma mais sincera
+            que encontramos de dizer: vocês fazem parte disso. A nossa história é também a história de
+            quem caminhou ao nosso lado, orou por nós, nos amou e acreditou nesse sonho junto conosco.
+          </p>
+          <p class="word-reveal">
+            Este é um convite reservado e pessoal. Ele foi feito especialmente para você, porque a
+            sua presença não é apenas desejada — ela é essencial. Queremos que esteja conosco nesse
+            dia, não como espectador, mas como parte viva de tudo o que celebramos.
+          </p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ========== CONFIRME SUA PRESENÇA (trigger) ========== -->
+  <!-- ========== CONFIRMAR PRESENÇA ========== -->
   <section id="rsvp" class="section rsvp-trigger">
     <div class="container">
       <div class="reveal" style="text-align:center;">
         <span class="section__label shimmer-text">Confirmação de Presença</span>
-        <h2 class="section__title">Mairiporã, São Paulo</h2>
-        <p class="rsvp-trigger__info">
+        <h2 class="section__title word-reveal">Mairiporã, São Paulo</h2>
+        <p class="rsvp-trigger__info word-reveal">
           Os detalhes completos sobre o local — como endereço, horário e orientações de acesso —
           serão enviados exclusivamente após a confirmação de presença.
         </p>
@@ -163,25 +146,22 @@
     </div>
   </section>
 
-  <!-- ========== LISTA DE PRESENTES ========== -->
+  <!-- ========== PRESENTES ========== -->
   <section id="presentes" class="section gifts">
     <div class="container">
       <div class="reveal">
         <span class="section__label shimmer-text">Lista de Presentes</span>
-        <h2 class="section__title">Contribua com o nosso novo começo</h2>
-        <p class="gifts__subtitle">Cada gesto conta. Escolha uma cota e celebre conosco.</p>
+        <h2 class="section__title word-reveal">Contribua com o nosso novo começo</h2>
+        <p class="gifts__subtitle word-reveal">Cada gesto conta. Escolha uma cota e celebre conosco.</p>
       </div>
-
-      <div class="gifts__grid reveal" id="gifts-grid">
-        <!-- Cards injetados via JS -->
-      </div>
+      <div class="gifts__grid reveal" id="gifts-grid"></div>
     </div>
   </section>
 
   <!-- ========== RODAPÉ ========== -->
   <footer class="footer">
     <div class="container">
-      <p class="footer__text reveal">
+      <p class="footer__text reveal word-reveal">
         Estamos iniciando uma nova etapa, e celebrá-la ao lado de quem faz parte da nossa história
         torna esse momento ainda mais especial.
       </p>
@@ -189,19 +169,16 @@
     </div>
   </footer>
 
-  <!-- ========== RSVP MODAL (Brush Mask Reveal — fullscreen, no scroll) ========== -->
+  <!-- ========== RSVP MODAL ========== -->
   <div class="rsvp-modal" id="rsvp-modal" aria-hidden="true">
     <div class="rsvp-modal__backdrop"></div>
     <div class="rsvp-modal__stage">
       <button class="rsvp-modal__close" aria-label="Fechar">&times;</button>
-
-      <!-- Image container — white bg, SVG brush mask over venue -->
       <div class="rsvp-modal__canvas">
         <svg class="rsvp-modal__svg" viewBox="0 0 1200 1600" preserveAspectRatio="xMidYMid slice">
           <defs>
             <mask id="brush-mask">
               <rect width="100%" height="100%" fill="black" />
-              <!-- Zigzag diagonal paths sweeping left to right -->
               <path id="brush-path" d="M -100,-100 L 300,300 L -100,700 L 300,1100 L -100,1500 L 300,1700" fill="none"
                 stroke="white" stroke-width="640" stroke-linecap="round" stroke-linejoin="round" />
               <path id="brush-path-2" d="M 500,-100 L 900,300 L 500,700 L 900,1100 L 500,1500 L 900,1700" fill="none"
@@ -214,17 +191,14 @@
             mask="url(#brush-mask)" preserveAspectRatio="xMidYMid slice" />
         </svg>
 
-        <!-- Form overlaid ON TOP of revealed image -->
         <div class="rsvp-modal__overlay" id="rsvp-form-wrap">
           <div class="rsvp-modal__form-inner">
             <h3 class="rsvp-modal__title">Confirmação de Presença</h3>
             <p class="rsvp-modal__subtitle">Confirme até <strong>12 de março de 2026</strong></p>
-
             <form id="rsvp-form" class="rsvp-modal__form" autocomplete="off">
               <div class="rsvp-modal__field">
                 <input type="text" id="rsvp-name" class="rsvp-modal__input" placeholder="Seu nome completo" required />
               </div>
-
               <div class="rsvp-modal__options">
                 <label class="rsvp-modal__radio">
                   <input type="radio" name="presence" value="sim" required />
@@ -235,9 +209,7 @@
                   <span class="rsvp-modal__radio-label">Infelizmente não poderei ir</span>
                 </label>
               </div>
-
               <button type="submit" class="btn btn--gold btn--modal" id="rsvp-btn">Confirmar</button>
-
               <div id="rsvp-feedback" class="rsvp-modal__feedback" aria-live="polite"></div>
             </form>
           </div>
@@ -246,7 +218,7 @@
     </div>
   </div>
 
-  <!-- Gift Modal -->
+  <!-- ========== GIFT MODAL ========== -->
   <div class="modal" id="gift-modal" aria-hidden="true">
     <div class="modal__backdrop"></div>
     <div class="modal__content">

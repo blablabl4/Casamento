@@ -1,10 +1,52 @@
 /* ================================================
    WEDDING LANDING PAGE — JavaScript
-   Zigzag Diagonal Brush Mask + Gold Interactions
+   v3: Carousel + Word-by-Word + Glassmorphism
    ================================================ */
 
 (function () {
   'use strict';
+
+  /* ---------- ALL PHOTOS for carousel ---------- */
+  const PHOTOS = [
+    'Fotos/Capa.jpeg',
+    'Fotos/capa principal.jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.09.jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.10.jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.10 (1).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12.jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (1).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (2).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (3).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (4).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (5).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (6).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (7).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (8).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (9).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (10).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (11).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (12).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (14).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (15).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (16).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (17).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (18).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (19).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (20).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (21).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (22).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (23).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (24).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (25).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (26).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (27).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (28).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (29).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (30).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (31).jpeg',
+    'Fotos/WhatsApp Image 2026-02-28 at 17.24.12 (32).jpeg',
+    'Fotos/confirmação.jpeg',
+  ];
 
   /* ---------- COUNTDOWN ---------- */
   const WEDDING_DATE = new Date('2026-07-18T16:00:00-03:00');
@@ -12,7 +54,6 @@
   function updateCountdown() {
     const now = new Date();
     const diff = WEDDING_DATE - now;
-
     if (diff <= 0) {
       document.getElementById('cd-days').textContent = '0';
       document.getElementById('cd-hours').textContent = '00';
@@ -20,22 +61,59 @@
       document.getElementById('cd-seconds').textContent = '00';
       return;
     }
-
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((diff / (1000 * 60)) % 60);
-    const seconds = Math.floor((diff / 1000) % 60);
-
-    document.getElementById('cd-days').textContent = String(days);
-    document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
-    document.getElementById('cd-minutes').textContent = String(minutes).padStart(2, '0');
-    document.getElementById('cd-seconds').textContent = String(seconds).padStart(2, '0');
+    const d = Math.floor(diff / 864e5);
+    const h = Math.floor((diff / 36e5) % 24);
+    const m = Math.floor((diff / 6e4) % 60);
+    const s = Math.floor((diff / 1e3) % 60);
+    document.getElementById('cd-days').textContent = String(d);
+    document.getElementById('cd-hours').textContent = String(h).padStart(2, '0');
+    document.getElementById('cd-minutes').textContent = String(m).padStart(2, '0');
+    document.getElementById('cd-seconds').textContent = String(s).padStart(2, '0');
   }
-
   updateCountdown();
   setInterval(updateCountdown, 1000);
 
-  /* ---------- SCROLL REVEAL (wind effect) ---------- */
+  /* ============================================
+     WORD-BY-WORD REVEAL ANIMATION
+     ============================================ */
+  function initWordReveal() {
+    const elements = document.querySelectorAll('.word-reveal');
+    elements.forEach((el) => {
+      const text = el.textContent.trim();
+      // Clear and rebuild with word spans
+      el.innerHTML = '';
+      const words = text.split(/\s+/);
+      words.forEach((word, i) => {
+        const span = document.createElement('span');
+        span.className = 'word';
+        span.textContent = word;
+        // Stagger: 45ms between words, slower and more fluid
+        span.style.transitionDelay = (i * 0.045) + 's';
+        el.appendChild(span);
+      });
+    });
+  }
+
+  initWordReveal();
+
+  /* Word reveal on scroll intersection */
+  const wordElements = document.querySelectorAll('.word-reveal');
+
+  const wordObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('words-visible');
+          wordObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.2, rootMargin: '0px 0px -30px 0px' }
+  );
+
+  wordElements.forEach((el) => wordObserver.observe(el));
+
+  /* ---------- SCROLL REVEAL (blocks) ---------- */
   const revealElements = document.querySelectorAll('.reveal');
 
   const revealObserver = new IntersectionObserver(
@@ -47,35 +125,53 @@
         }
       });
     },
-    {
-      threshold: 0.15,
-      rootMargin: '0px 0px -40px 0px',
-    }
+    { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
   );
 
   revealElements.forEach((el) => revealObserver.observe(el));
 
-  /* ---------- NAV SCROLL SHADOW ---------- */
+  /* ---------- NAV ---------- */
   const nav = document.getElementById('nav');
-
   window.addEventListener('scroll', () => {
-    if (window.scrollY > 50) {
-      nav.classList.add('nav--scrolled');
-    } else {
-      nav.classList.remove('nav--scrolled');
-    }
+    nav.classList.toggle('nav--scrolled', window.scrollY > 50);
   });
 
-  /* ---------- SMOOTH NAV LINKS ---------- */
   document.querySelectorAll('.nav__link').forEach((link) => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
       const target = document.querySelector(link.getAttribute('href'));
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   });
+
+  /* ============================================
+     PHOTO CAROUSEL — auto-sliding
+     ============================================ */
+  const carousel = document.getElementById('photo-carousel');
+  let currentSlide = 0;
+
+  // Build slides
+  PHOTOS.forEach((src) => {
+    const slide = document.createElement('div');
+    slide.className = 'carousel__slide';
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = '';
+    img.loading = 'lazy';
+    slide.appendChild(img);
+    carousel.appendChild(slide);
+  });
+
+  function goToSlide(index) {
+    currentSlide = index;
+    carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
+  }
+
+  // Auto-advance every 4 seconds
+  setInterval(() => {
+    const next = (currentSlide + 1) % PHOTOS.length;
+    goToSlide(next);
+  }, 4000);
 
   /* ---------- GIFT CARDS ---------- */
   const gifts = [
@@ -91,7 +187,6 @@
   ];
 
   const giftsGrid = document.getElementById('gifts-grid');
-
   gifts.forEach((gift) => {
     const card = document.createElement('div');
     card.className = 'gift-card';
@@ -102,29 +197,20 @@
       <h3 class="gift-card__name">${gift.name}</h3>
       <p class="gift-card__price">${gift.price}</p>
     `;
-
     card.addEventListener('click', () => openGiftModal(gift));
     card.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        openGiftModal(gift);
-      }
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openGiftModal(gift); }
     });
-
     giftsGrid.appendChild(card);
   });
 
   /* ---------- GIFT MODAL ---------- */
   const giftModal = document.getElementById('gift-modal');
-  const modalTitle = document.getElementById('modal-title');
-  const modalPrice = document.getElementById('modal-price');
-  const modalDesc = document.getElementById('modal-desc');
-  const copyBtn = document.getElementById('copy-pix');
 
   function openGiftModal(gift) {
-    modalTitle.textContent = gift.emoji + ' ' + gift.name;
-    modalPrice.textContent = gift.price;
-    modalDesc.textContent = gift.desc;
+    document.getElementById('modal-title').textContent = gift.emoji + ' ' + gift.name;
+    document.getElementById('modal-price').textContent = gift.price;
+    document.getElementById('modal-desc').textContent = gift.desc;
     giftModal.classList.add('modal--open');
     giftModal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
@@ -139,62 +225,41 @@
   giftModal.querySelector('.modal__close').addEventListener('click', closeGiftModal);
   giftModal.querySelector('.modal__backdrop').addEventListener('click', closeGiftModal);
 
-  copyBtn.addEventListener('click', () => {
-    const pixKey = document.getElementById('pix-key').textContent;
-    navigator.clipboard.writeText(pixKey).then(() => {
-      copyBtn.textContent = 'Copiado!';
-      setTimeout(() => {
-        copyBtn.textContent = 'Copiar';
-      }, 2000);
+  document.getElementById('copy-pix').addEventListener('click', function () {
+    const key = document.getElementById('pix-key').textContent;
+    navigator.clipboard.writeText(key).then(() => {
+      this.textContent = 'Copiado!';
+      setTimeout(() => { this.textContent = 'Copiar'; }, 2000);
     });
   });
 
   /* ============================================
-     RSVP MODAL — Zigzag Diagonal Brush Mask
+     RSVP MODAL — Zigzag Brush Mask
      ============================================ */
   const rsvpModal = document.getElementById('rsvp-modal');
-  const openRsvpBtn = document.getElementById('open-rsvp');
   const rsvpFormWrap = document.getElementById('rsvp-form-wrap');
+  const brushPaths = [
+    document.getElementById('brush-path'),
+    document.getElementById('brush-path-2'),
+    document.getElementById('brush-path-3'),
+  ];
+  let brushPlayed = false;
 
-  const brushPath1 = document.getElementById('brush-path');
-  const brushPath2 = document.getElementById('brush-path-2');
-  const brushPath3 = document.getElementById('brush-path-3');
-
-  let brushAnimationPlayed = false;
-
-  /**
-   * Initialize SVG paths: set strokeDasharray and offset
-   * so the path is fully hidden, ready for reveal animation.
-   */
   function initBrushPaths() {
-    [brushPath1, brushPath2, brushPath3].forEach((path) => {
-      if (path) {
-        const length = path.getTotalLength();
-        path.style.strokeDasharray = length;
-        path.style.strokeDashoffset = length;
-      }
+    brushPaths.forEach((p) => {
+      if (!p) return;
+      const len = p.getTotalLength();
+      p.style.strokeDasharray = len;
+      p.style.strokeDashoffset = len;
     });
   }
 
-  /**
-   * Animate a single brush stroke path using Web Animations API.
-   * Returns the Animation object for chaining.
-   */
-  function animateBrushStroke(path, duration, delay) {
+  function animBrush(path, dur, delay) {
     if (!path) return null;
-    const length = path.getTotalLength();
-
+    const len = path.getTotalLength();
     return path.animate(
-      [
-        { strokeDashoffset: length },
-        { strokeDashoffset: 0 }
-      ],
-      {
-        duration: duration,
-        delay: delay,
-        easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
-        fill: 'forwards'
-      }
+      [{ strokeDashoffset: len }, { strokeDashoffset: 0 }],
+      { duration: dur, delay: delay, easing: 'cubic-bezier(0.4,0,0.2,1)', fill: 'forwards' }
     );
   }
 
@@ -203,33 +268,18 @@
     rsvpModal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
 
-    if (!brushAnimationPlayed) {
-      brushAnimationPlayed = true;
-
-      // Initialize all paths to hidden
+    if (!brushPlayed) {
+      brushPlayed = true;
       initBrushPaths();
-
-      // Zigzag diagonal sweep: left → middle → right
-      // Path 1 (left column): starts immediately, 800ms
-      animateBrushStroke(brushPath1, 800, 0);
-      // Path 2 (middle column): 400ms delay, 800ms
-      animateBrushStroke(brushPath2, 800, 400);
-      // Path 3 (right column): 800ms delay, 800ms
-      const lastAnim = animateBrushStroke(brushPath3, 800, 800);
-
-      // After ALL brush strokes complete, show the form overlay ON TOP
-      if (lastAnim) {
-        lastAnim.onfinish = () => {
-          // Small buffer for visual polish
-          setTimeout(() => {
-            rsvpFormWrap.classList.add('rsvp-form--visible');
-          }, 200);
+      animBrush(brushPaths[0], 800, 0);
+      animBrush(brushPaths[1], 800, 400);
+      const last = animBrush(brushPaths[2], 800, 800);
+      if (last) {
+        last.onfinish = () => {
+          setTimeout(() => rsvpFormWrap.classList.add('rsvp-form--visible'), 200);
         };
       } else {
-        // Fallback if animation API not supported
-        setTimeout(() => {
-          rsvpFormWrap.classList.add('rsvp-form--visible');
-        }, 2000);
+        setTimeout(() => rsvpFormWrap.classList.add('rsvp-form--visible'), 2000);
       }
     }
   }
@@ -240,7 +290,7 @@
     document.body.style.overflow = '';
   }
 
-  openRsvpBtn.addEventListener('click', openRsvpModal);
+  document.getElementById('open-rsvp').addEventListener('click', openRsvpModal);
   rsvpModal.querySelector('.rsvp-modal__close').addEventListener('click', closeRsvpModal);
   rsvpModal.querySelector('.rsvp-modal__backdrop').addEventListener('click', closeRsvpModal);
 
@@ -250,40 +300,29 @@
 
   rsvpForm.addEventListener('submit', (e) => {
     e.preventDefault();
-
     const name = document.getElementById('rsvp-name').value.trim();
     const presence = rsvpForm.querySelector('input[name="presence"]:checked');
-
     if (!name || !presence) {
-      showFeedback('Por favor, preencha seu nome e selecione uma opção.', 'error');
+      rsvpFeedback.textContent = 'Por favor, preencha seu nome e selecione uma opção.';
+      rsvpFeedback.className = 'rsvp-modal__feedback rsvp-modal__feedback--error';
       return;
     }
-
     const btn = document.getElementById('rsvp-btn');
     btn.disabled = true;
     btn.textContent = 'Enviando…';
-
     setTimeout(() => {
-      if (presence.value === 'sim') {
-        showFeedback(`Que alegria, ${name.split(' ')[0]}! Sua presença está confirmada. 💛`, 'success');
-      } else {
-        showFeedback(`Sentiremos sua falta, ${name.split(' ')[0]}. Obrigado por nos avisar.`, 'success');
-      }
+      const first = name.split(' ')[0];
+      rsvpFeedback.textContent = presence.value === 'sim'
+        ? `Que alegria, ${first}! Sua presença está confirmada. 💛`
+        : `Sentiremos sua falta, ${first}. Obrigado por nos avisar.`;
+      rsvpFeedback.className = 'rsvp-modal__feedback rsvp-modal__feedback--success';
       btn.textContent = 'Confirmado ✓';
     }, 800);
   });
 
-  function showFeedback(msg, type) {
-    rsvpFeedback.textContent = msg;
-    rsvpFeedback.className = 'rsvp-modal__feedback rsvp-modal__feedback--' + type;
-  }
-
   /* ---------- ESCAPE KEY ---------- */
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      closeGiftModal();
-      closeRsvpModal();
-    }
+    if (e.key === 'Escape') { closeGiftModal(); closeRsvpModal(); }
   });
 
 })();
