@@ -121,6 +121,7 @@ a {
 .reveal {
   opacity: 0;
   transform: translateY(15px);
+  will-change: opacity, transform;
   transition: opacity 1s cubic-bezier(0.22, 1, 0.36, 1), transform 1s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -134,6 +135,7 @@ a {
   display: inline-block;
   opacity: 0;
   transform: translateY(12px);
+  will-change: opacity, transform;
   transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1), transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
   /* delay is set inline via JS */
 }

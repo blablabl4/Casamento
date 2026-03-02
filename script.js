@@ -301,6 +301,8 @@
       } else {
         setTimeout(() => rsvpFormWrap.classList.add('rsvp-form--visible'), 2000);
       }
+    } else {
+      rsvpFormWrap.classList.add('rsvp-form--visible');
     }
   }
 
