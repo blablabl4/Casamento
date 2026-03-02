@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Painel Admin — Casamento</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="admin.css" />
+</head>
+
+<body>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="login">
+        <div class="login__card">
+            <div class="login__icon">💍</div>
+            <h1 class="login__title">Painel Admin</h1>
+            <p class="login__sub">Acesse para gerenciar seu casamento</p>
+            <form id="login-form" class="login__form">
+                <input type="text" id="login-user" placeholder="Usuário" value="admin" required />
+                <input type="password" id="login-pass" placeholder="Senha" required />
+                <button type="submit" class="btn-primary">Entrar</button>
+                <p id="login-error" class="login__error"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADMIN DASHBOARD -->
+    <div id="admin-app" class="app" style="display:none;">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar__brand">
+                <span class="sidebar__icon">💍</span>
+                <span class="sidebar__title">Admin</span>
+            </div>
+            <nav class="sidebar__nav">
+                <button class="sidebar__link sidebar__link--active" data-tab="dashboard">
+                    <span class="sidebar__link-icon">📊</span> Dashboard
+                </button>
+                <button class="sidebar__link" data-tab="rsvp">
+                    <span class="sidebar__link-icon">📋</span> Lista de Presença
+                </button>
+                <button class="sidebar__link" data-tab="gifts">
+                    <span class="sidebar__link-icon">🎁</span> Presentes
+                </button>
+                <button class="sidebar__link" data-tab="settings">
+                    <span class="sidebar__link-icon">⚙️</span> Configurações
+                </button>
+            </nav>
+            <div class="sidebar__footer">
+                <button id="logout-btn" class="sidebar__logout">Sair</button>
+            </div>
+        </aside>
+
+        <!-- Main content -->
+        <main class="main">
+            <!-- DASHBOARD TAB -->
+            <section id="tab-dashboard" class="tab">
+                <div class="tab__header">
+                    <h2 class="tab__title">Dashboard</h2>
+                    <p class="tab__subtitle">Visão geral do casamento</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card stat-card--gold">
+                        <div class="stat-card__value" id="stat-confirmed">0</div>
+                        <div class="stat-card__label">Confirmados</div>
+                        <div class="stat-card__icon">✅</div>
+                    </div>
+                    <div class="stat-card stat-card--rose">
+                        <div class="stat-card__value" id="stat-declined">0</div>
+                        <div class="stat-card__label">Recusaram</div>
+                        <div class="stat-card__icon">❌</div>
+                    </div>
+                    <div class="stat-card stat-card--blue">
+                        <div class="stat-card__value" id="stat-total">0</div>
+                        <div class="stat-card__label">Total Respostas</div>
+                        <div class="stat-card__icon">📩</div>
+                    </div>
+                    <div class="stat-card stat-card--green">
+                        <div class="stat-card__value" id="stat-gifts">0</div>
+                        <div class="stat-card__label">Presentes</div>
+                        <div class="stat-card__icon">🎁</div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel__header">
+                        <h3 class="panel__title">Confirmações Recentes</h3>
+                    </div>
+                    <div class="panel__body" id="recent-rsvps">
+                        <p class="empty-state">Carregando...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RSVP TAB -->
+            <section id="tab-rsvp" class="tab" style="display:none;">
+                <div class="tab__header">
+                    <h2 class="tab__title">Lista de Presença</h2>
+                    <div class="tab__actions">
+                        <span class="tab__count" id="rsvp-count">0 convidados</span>
+                        <button class="btn-secondary" id="export-csv">📥 Exportar CSV</button>
+                    </div>
+                </div>
+
+                <div class="filters">
+                    <button class="filter-btn filter-btn--active" data-filter="all">Todos</button>
+                    <button class="filter-btn" data-filter="sim">Confirmados</button>
+                    <button class="filter-btn" data-filter="nao">Recusaram</button>
+                </div>
+
+                <div class="panel">
+                    <table class="table" id="rsvp-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Presença</th>
+                                <th>Data</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rsvp-tbody">
+                            <tr>
+                                <td colspan="4" class="empty-state">Carregando...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- GIFTS TAB -->
+            <section id="tab-gifts" class="tab" style="display:none;">
+                <div class="tab__header">
+                    <h2 class="tab__title">Presentes & Contribuições</h2>
+                    <span class="tab__count" id="gifts-count">0 contribuições</span>
+                </div>
+
+                <div class="panel">
+                    <table class="table" id="gifts-table">
+                        <thead>
+                            <tr>
+                                <th>Convidado</th>
+                                <th>Presente</th>
+                                <th>Valor</th>
+                                <th>PIX Confirmado</th>
+                                <th>Data</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gifts-tbody">
+                            <tr>
+                                <td colspan="6" class="empty-state">Carregando...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- SETTINGS TAB -->
+            <section id="tab-settings" class="tab" style="display:none;">
+                <div class="tab__header">
+                    <h2 class="tab__title">Configurações</h2>
+                </div>
+
+                <div class="panel" style="max-width: 480px;">
+                    <div class="panel__header">
+                        <h3 class="panel__title">Alterar Senha</h3>
+                    </div>
+                    <div class="panel__body">
+                        <form id="password-form" class="settings-form">
+                            <div class="form-group">
+                                <label>Senha atual</label>
+                                <input type="password" id="current-pass" required />
+                            </div>
+                            <div class="form-group">
+                                <label>Nova senha</label>
+                                <input type="password" id="new-pass" required />
+                            </div>
+                            <button type="submit" class="btn-primary">Salvar</button>
+                            <p id="pass-feedback" class="feedback"></p>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="panel" style="max-width: 480px; margin-top: 1.5rem;">
+                    <div class="panel__header">
+                        <h3 class="panel__title">Informações</h3>
+                    </div>
+                    <div class="panel__body">
+                        <p style="color: var(--text-secondary); font-size: 0.85rem;">
+                            <strong>URL do site:</strong> <a href="/" target="_blank" style="color: var(--gold);">Abrir
+                                site →</a><br />
+                            <strong>Login padrão:</strong> admin / casamento2026<br />
+                            <strong>Banco de dados:</strong> SQLite (data/wedding.db)
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+
+</html>

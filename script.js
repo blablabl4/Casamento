@@ -207,7 +207,10 @@
   /* ---------- GIFT MODAL ---------- */
   const giftModal = document.getElementById('gift-modal');
 
+  let currentGift = null;
+
   function openGiftModal(gift) {
+    currentGift = gift;
     document.getElementById('modal-title').textContent = gift.emoji + ' ' + gift.name;
     document.getElementById('modal-price').textContent = gift.price;
     document.getElementById('modal-desc').textContent = gift.desc;
@@ -231,6 +234,23 @@
       this.textContent = 'Copiado!';
       setTimeout(() => { this.textContent = 'Copiar'; }, 2000);
     });
+
+    // Register gift contribution in the database
+    if (currentGift) {
+      const guestName = prompt('Seu nome (para registro do presente):');
+      if (guestName && guestName.trim()) {
+        fetch('/api/gifts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guest_name: guestName.trim(),
+            gift_name: currentGift.name,
+            gift_emoji: currentGift.emoji,
+            amount: currentGift.price,
+          }),
+        }).catch(() => { });
+      }
+    }
   });
 
   /* ============================================
@@ -298,7 +318,7 @@
   const rsvpForm = document.getElementById('rsvp-form');
   const rsvpFeedback = document.getElementById('rsvp-feedback');
 
-  rsvpForm.addEventListener('submit', (e) => {
+  rsvpForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = document.getElementById('rsvp-name').value.trim();
     const presence = rsvpForm.querySelector('input[name="presence"]:checked');
@@ -310,14 +330,31 @@
     const btn = document.getElementById('rsvp-btn');
     btn.disabled = true;
     btn.textContent = 'Enviando…';
-    setTimeout(() => {
-      const first = name.split(' ')[0];
-      rsvpFeedback.textContent = presence.value === 'sim'
-        ? `Que alegria, ${first}! Sua presença está confirmada. 💛`
-        : `Sentiremos sua falta, ${first}. Obrigado por nos avisar.`;
-      rsvpFeedback.className = 'rsvp-modal__feedback rsvp-modal__feedback--success';
-      btn.textContent = 'Confirmado ✓';
-    }, 800);
+
+    try {
+      const res = await fetch('/api/rsvp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, presence: presence.value }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        const first = name.split(' ')[0];
+        rsvpFeedback.textContent = presence.value === 'sim'
+          ? `Que alegria, ${first}! Sua presença está confirmada. 💛`
+          : `Sentiremos sua falta, ${first}. Obrigado por nos avisar.`;
+        rsvpFeedback.className = 'rsvp-modal__feedback rsvp-modal__feedback--success';
+        btn.textContent = 'Confirmado ✓';
+      } else {
+        throw new Error(data.error || 'Erro desconhecido');
+      }
+    } catch (err) {
+      rsvpFeedback.textContent = 'Erro ao enviar. Tente novamente.';
+      rsvpFeedback.className = 'rsvp-modal__feedback rsvp-modal__feedback--error';
+      btn.disabled = false;
+      btn.textContent = 'Confirmar';
+    }
   });
 
   /* ---------- ESCAPE KEY ---------- */
