@@ -187,9 +187,9 @@
   ];
 
   const giftsGrid = document.getElementById('gifts-grid');
-  gifts.forEach((gift) => {
+  gifts.forEach((gift, idx) => {
     const card = document.createElement('div');
-    card.className = 'gift-card';
+    card.className = 'gift-card gift-card--loading';
     card.setAttribute('role', 'button');
     card.setAttribute('tabindex', '0');
     card.innerHTML = `
@@ -202,6 +202,8 @@
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openGiftModal(gift); }
     });
     giftsGrid.appendChild(card);
+    // staggered fade-in
+    setTimeout(() => card.classList.remove('gift-card--loading'), 80 * idx);
   });
 
   /* ---------- GIFT MODAL ---------- */
@@ -310,6 +312,16 @@
     rsvpModal.classList.remove('rsvp-modal--open');
     rsvpModal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
+
+    // Reset the form so a new guest can use it
+    const btn = document.getElementById('rsvp-btn');
+    btn.disabled = false;
+    btn.textContent = 'Confirmar';
+    document.getElementById('rsvp-name').value = '';
+    const checked = rsvpForm.querySelector('input[name="presence"]:checked');
+    if (checked) checked.checked = false;
+    rsvpFeedback.textContent = '';
+    rsvpFeedback.className = 'rsvp-modal__feedback';
   }
 
   document.getElementById('open-rsvp').addEventListener('click', openRsvpModal);

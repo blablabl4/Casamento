@@ -509,6 +509,13 @@ a {
   transition: all var(--transition);
   position: relative;
   overflow: hidden;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.gift-card--loading {
+  opacity: 0;
+  transform: translateY(18px);
 }
 
 .gift-card::before {
@@ -605,18 +612,25 @@ a {
 
 .modal__close {
   position: absolute;
-  top: 16px;
-  right: 20px;
-  background: none;
+  top: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.08);
   border: none;
-  font-size: 1.6rem;
-  color: var(--gray-soft);
+  font-size: 1.4rem;
+  color: var(--gray-dark);
   cursor: pointer;
   line-height: 1;
-  transition: color var(--transition);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: background var(--transition), color var(--transition);
 }
 
 .modal__close:hover {
+  background: rgba(0, 0, 0, 0.15);
   color: var(--charcoal);
 }
 
