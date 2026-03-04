@@ -47,6 +47,9 @@
                 <button class="sidebar__link" data-tab="gifts">
                     <span class="sidebar__link-icon">🎁</span> Presentes
                 </button>
+                <button class="sidebar__link" data-tab="photos">
+                    <span class="sidebar__link-icon">📸</span> Fotos
+                </button>
                 <button class="sidebar__link" data-tab="settings">
                     <span class="sidebar__link-icon">⚙️</span> Configurações
                 </button>
@@ -158,6 +161,26 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </section>
+
+            <!-- PHOTOS TAB -->
+            <section id="tab-photos" class="tab" style="display:none;">
+                <div class="tab__header">
+                    <h2 class="tab__title">Fotos dos Convidados</h2>
+                    <div class="tab__actions">
+                        <span class="tab__count" id="photos-count">0 fotos</span>
+                        <span class="tab__count" id="photos-size">0 MB</span>
+                        <a href="/fotos.html" target="_blank" class="btn-secondary">📸 Página de Upload</a>
+                        <a href="/telao.html" target="_blank" class="btn-secondary">📺 Telão</a>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel__body" id="photos-grid"
+                        style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); gap:8px;">
+                        <p class="empty-state">Carregando...</p>
+                    </div>
                 </div>
             </section>
 

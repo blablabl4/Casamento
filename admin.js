@@ -84,6 +84,7 @@
             if (tabId === 'dashboard') loadDashboard();
             if (tabId === 'rsvp') loadRSVP();
             if (tabId === 'gifts') loadGifts();
+            if (tabId === 'photos') loadPhotos();
         });
     });
 
@@ -276,6 +277,49 @@
             feedback.className = 'feedback feedback--error';
         }
     });
+
+    // ============================================
+    // PHOTOS
+    // ============================================
+    async function loadPhotos() {
+        try {
+            const [photos, stats] = await Promise.all([
+                api('/api/photos'),
+                api('/api/photos/stats')
+            ]);
+
+            document.getElementById('photos-count').textContent = stats.total + ' foto' + (stats.total !== 1 ? 's' : '');
+            document.getElementById('photos-size').textContent = stats.totalSizeMB + ' MB';
+
+            const grid = document.getElementById('photos-grid');
+            if (photos.length === 0) {
+                grid.innerHTML = '<p class="empty-state">Nenhuma foto enviada ainda.</p>';
+                return;
+            }
+
+            grid.innerHTML = photos.map((p) => `
+                <div style="position:relative; aspect-ratio:1; overflow:hidden; background:var(--bg-hover);">
+                    <img src="/uploads/thumbs/${p.thumb_filename}" alt="" style="width:100%; height:100%; object-fit:cover; display:block;" loading="lazy" />
+                    <div style="position:absolute; bottom:0; left:0; right:0; padding:4px 6px; background:linear-gradient(transparent, rgba(0,0,0,0.6));">
+                        <span style="color:white; font-size:0.65rem;">${esc(p.guest_name || 'Anônimo')}</span>
+                    </div>
+                    <button class="btn-icon" onclick="deletePhoto(${p.id})" title="Excluir" style="position:absolute; top:4px; right:4px; background:rgba(0,0,0,0.5); color:white; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-size:0.7rem; opacity:0.7;">🗑️</button>
+                </div>
+            `).join('');
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    window.deletePhoto = async function (id) {
+        if (!confirm('Excluir esta foto?')) return;
+        try {
+            await api('/api/photos/' + id, { method: 'DELETE' });
+            loadPhotos();
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
     // ---------- UTILS ----------
     function esc(str) {

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>📺 Telão — Galeria ao Vivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Questrial&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --cream: #FAF7F2;
+            --warm-white: #F5F0E8;
+            --gold: #C6A96C;
+            --gold-light: #D4BC82;
+            --charcoal: #2A2A26;
+            --gray-soft: #9A9A90;
+            --ff-serif: 'Cormorant Garamond', Georgia, serif;
+            --ff-sans: 'Questrial', 'Helvetica Neue', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--ff-sans);
+            background: var(--charcoal);
+            color: var(--cream);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Header bar */
+        .telao-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: linear-gradient(to bottom, rgba(42, 42, 38, 0.9), transparent);
+        }
+
+        .telao-header__title {
+            font-family: var(--ff-serif);
+            font-weight: 300;
+            font-size: 1.4rem;
+            color: var(--gold);
+        }
+
+        .telao-header__count {
+            font-size: 0.8rem;
+            color: var(--gray-soft);
+            letter-spacing: 0.1em;
+        }
+
+        /* Masonry grid */
+        .masonry {
+            position: fixed;
+            inset: 0;
+            padding: 4.5rem 1rem 1rem;
+            column-count: 4;
+            column-gap: 10px;
+            overflow-y: auto;
+        }
+
+        .masonry__item {
+            break-inside: avoid;
+            margin-bottom: 10px;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: scale(0.85) translateY(20px);
+            animation: popIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes popIn {
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .masonry__item img {
+            width: 100%;
+            display: block;
+        }
+
+        .masonry__item-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 8px 12px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .masonry__item-name {
+            font-size: 0.72rem;
+            color: rgba(255, 255, 255, 0.85);
+            letter-spacing: 0.04em;
+        }
+
+        .masonry__item-time {
+            font-size: 0.6rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* New photo highlight */
+        .masonry__item--new {
+            box-shadow: 0 0 0 3px var(--gold), 0 0 30px rgba(198, 169, 108, 0.4);
+        }
+
+        .masonry__item--new::after {
+            content: 'NOVA!';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--gold);
+            color: var(--charcoal);
+            font-size: 0.55rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            padding: 2px 8px;
+        }
+
+        /* Empty state */
+        .empty-state {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .empty-state__icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.4;
+        }
+
+        .empty-state__text {
+            font-family: var(--ff-serif);
+            font-size: 1.6rem;
+            font-weight: 300;
+            color: var(--gray-soft);
+        }
+
+        .empty-state__hint {
+            font-size: 0.85rem;
+            color: rgba(154, 154, 144, 0.5);
+            margin-top: 0.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .masonry {
+                column-count: 3;
+            }
+        }
+
+        @media (max-width: 800px) {
+            .masonry {
+                column-count: 2;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .masonry {
+                column-count: 2;
+                column-gap: 6px;
+            }
+
+            .masonry__item {
+                margin-bottom: 6px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="telao-header">
+        <h1 class="telao-header__title">Galeria ao Vivo</h1>
+        <span class="telao-header__count" id="photo-count">0 fotos</span>
+    </header>
+
+    <div class="masonry" id="masonry"></div>
+
+    <div class="empty-state" id="empty-state">
+        <div class="empty-state__icon">📸</div>
+        <p class="empty-state__text">Esperando as primeiras fotos…</p>
+        <p class="empty-state__hint">As fotos aparecerão aqui em tempo real</p>
+    </div>
+
+    <script>
+        const masonry = document.getElementById('masonry');
+        const emptyState = document.getElementById('empty-state');
+        const photoCount = document.getElementById('photo-count');
+        let count = 0;
+
+        function updateCount() {
+            photoCount.textContent = count + (count === 1 ? ' foto' : ' fotos');
+        }
+
+        function addPhoto(photo, isNew = false) {
+            emptyState.style.display = 'none';
+
+            const item = document.createElement('div');
+            item.className = 'masonry__item' + (isNew ? ' masonry__item--new' : '');
+
+            const time = photo.created_at
+                ? new Date(photo.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+                : '';
+
+            item.innerHTML = `
+        <img src="/uploads/thumbs/${photo.thumb_filename}" alt="Foto" loading="lazy" />
+        <div class="masonry__item-overlay">
+          <span class="masonry__item-name">${photo.guest_name || 'Anônimo'}</span>
+          <span class="masonry__item-time">${time}</span>
+        </div>
+      `;
+
+            // Prepend new photos, append existing
+            if (isNew) {
+                masonry.prepend(item);
+                // Remove "new" highlight after 8 seconds
+                setTimeout(() => item.classList.remove('masonry__item--new'), 8000);
+            } else {
+                item.style.animationDelay = (count * 0.05) + 's';
+                masonry.appendChild(item);
+            }
+
+            count++;
+            updateCount();
+        }
+
+        // Load existing photos
+        async function loadPhotos() {
+            try {
+                const res = await fetch('/api/photos');
+                const photos = await res.json();
+                if (photos.length === 0) {
+                    emptyState.style.display = 'flex';
+                } else {
+                    emptyState.style.display = 'none';
+                    photos.forEach(p => addPhoto(p, false));
+                }
+            } catch (err) {
+                console.error('Failed to load photos:', err);
+            }
+        }
+
+        loadPhotos();
+
+        // Real-time updates via SSE
+        const evtSource = new EventSource('/api/photos/stream');
+        evtSource.addEventListener('message', (e) => {
+            try {
+                const photo = JSON.parse(e.data);
+                addPhoto(photo, true);
+            } catch { }
+        });
+
+        // Reconnect on error
+        evtSource.addEventListener('error', () => {
+            setTimeout(() => {
+                window.location.reload();
+            }, 5000);
+        });
+    </script>
+</body>
+
+</html>

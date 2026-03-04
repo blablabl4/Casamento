@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>📸 Envie sua Foto — Casamento</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Questrial&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --sand: #D4C5A9;
+            --cream: #FAF7F2;
+            --warm-white: #F5F0E8;
+            --gold: #C6A96C;
+            --gold-light: #D4BC82;
+            --gold-dark: #A8894E;
+            --charcoal: #2A2A26;
+            --gray-text: #6B6B63;
+            --gray-soft: #9A9A90;
+            --ff-serif: 'Cormorant Garamond', Georgia, serif;
+            --ff-sans: 'Questrial', 'Helvetica Neue', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--ff-sans);
+            background: var(--cream);
+            color: var(--charcoal);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            text-align: center;
+            padding: 2.5rem 1.5rem 1rem;
+        }
+
+        .header h1 {
+            font-family: var(--ff-serif);
+            font-weight: 300;
+            font-size: clamp(1.6rem, 5vw, 2.4rem);
+            color: var(--charcoal);
+            margin-bottom: 0.3rem;
+        }
+
+        .header p {
+            font-size: 0.85rem;
+            color: var(--gray-soft);
+            letter-spacing: 0.04em;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            width: 90%;
+            max-width: 440px;
+            margin: 1rem auto;
+            padding: 2rem;
+            border: 2px dashed var(--sand);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .upload-area:hover,
+        .upload-area--active {
+            border-color: var(--gold);
+            background: rgba(198, 169, 108, 0.04);
+        }
+
+        .upload-area__icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-area__text {
+            font-size: 0.9rem;
+            color: var(--gray-text);
+        }
+
+        .upload-area__hint {
+            font-size: 0.72rem;
+            color: var(--gray-soft);
+            margin-top: 0.4rem;
+        }
+
+        #photo-input {
+            display: none;
+        }
+
+        /* Name Input */
+        .name-row {
+            width: 90%;
+            max-width: 440px;
+            margin: 0 auto 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .name-row input {
+            flex: 1;
+            padding: 0.7rem 1rem;
+            font-family: var(--ff-sans);
+            font-size: 0.85rem;
+            border: 1px solid var(--sand);
+            background: white;
+            color: var(--charcoal);
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .name-row input:focus {
+            border-color: var(--gold);
+        }
+
+        /* Progress */
+        .progress-wrap {
+            width: 90%;
+            max-width: 440px;
+            margin: 0 auto;
+            display: none;
+        }
+
+        .progress-wrap--active {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--sand);
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar__fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--gold), var(--gold-light));
+            transition: width 0.15s ease;
+        }
+
+        .progress-text {
+            font-size: 0.78rem;
+            color: var(--gray-soft);
+            text-align: center;
+        }
+
+        /* Feedback */
+        .feedback {
+            width: 90%;
+            max-width: 440px;
+            margin: 0.5rem auto;
+            text-align: center;
+            font-size: 0.85rem;
+            min-height: 1.5em;
+        }
+
+        .feedback--success {
+            color: #4ade80;
+        }
+
+        .feedback--error {
+            color: #f87171;
+        }
+
+        /* Gallery */
+        .gallery-title {
+            font-family: var(--ff-serif);
+            font-weight: 300;
+            font-size: 1.3rem;
+            text-align: center;
+            margin: 2rem 0 1rem;
+            color: var(--charcoal);
+        }
+
+        .gallery {
+            width: 94%;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 8px;
+        }
+
+        .gallery__item {
+            position: relative;
+            overflow: hidden;
+            aspect-ratio: 1;
+            background: var(--warm-white);
+            opacity: 0;
+            transform: scale(0.92);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .gallery__item--visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .gallery__item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .gallery__item-name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 4px 8px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.5));
+            color: white;
+            font-size: 0.65rem;
+            letter-spacing: 0.03em;
+        }
+
+        .empty-gallery {
+            text-align: center;
+            color: var(--gray-soft);
+            font-size: 0.85rem;
+            padding: 2rem;
+        }
+
+        /* Back link */
+        .back-link {
+            display: inline-block;
+            margin: 1rem;
+            font-size: 0.8rem;
+            color: var(--gold);
+            text-decoration: none;
+            letter-spacing: 0.05em;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover {
+            color: var(--gold-dark);
+        }
+    </style>
+</head>
+
+<body>
+    <a href="/" class="back-link">← Voltar ao site</a>
+
+    <div class="header">
+        <h1>Envie sua Foto</h1>
+        <p>Compartilhe seus melhores momentos conosco — sem compressão!</p>
+    </div>
+
+    <div class="name-row">
+        <input type="text" id="guest-name" placeholder="Seu nome (opcional)" />
+    </div>
+
+    <div class="upload-area" id="upload-area">
+        <div class="upload-area__icon">📷</div>
+        <p class="upload-area__text">Toque para tirar uma foto ou escolher da galeria</p>
+        <p class="upload-area__hint">Fotos em qualidade original • até 50MB</p>
+        <input type="file" id="photo-input" accept="image/*" capture="environment" multiple />
+    </div>
+
+    <div class="progress-wrap" id="progress-wrap">
+        <div class="progress-bar">
+            <div class="progress-bar__fill" id="progress-fill"></div>
+        </div>
+        <p class="progress-text" id="progress-text">Enviando...</p>
+    </div>
+
+    <p class="feedback" id="feedback"></p>
+
+    <h2 class="gallery-title">Fotos da Festa</h2>
+    <div class="gallery" id="gallery"></div>
+
+    <script>
+        const uploadArea = document.getElementById('upload-area');
+        const photoInput = document.getElementById('photo-input');
+        const progressWrap = document.getElementById('progress-wrap');
+        const progressFill = document.getElementById('progress-fill');
+        const progressText = document.getElementById('progress-text');
+        const feedback = document.getElementById('feedback');
+        const gallery = document.getElementById('gallery');
+
+        // Click to open camera/gallery
+        uploadArea.addEventListener('click', () => photoInput.click());
+
+        // Drag & drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('upload-area--active');
+        });
+        uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('upload-area--active'));
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('upload-area--active');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        // File selected
+        photoInput.addEventListener('change', () => {
+            if (photoInput.files.length > 0) handleFiles(photoInput.files);
+        });
+
+        async function handleFiles(files) {
+            for (const file of files) {
+                await uploadFile(file);
+            }
+            photoInput.value = '';
+        }
+
+        function uploadFile(file) {
+            return new Promise((resolve) => {
+                const guestName = document.getElementById('guest-name').value.trim() || 'Anônimo';
+                const formData = new FormData();
+                formData.append('photo', file);
+                formData.append('guest_name', guestName);
+
+                const xhr = new XMLHttpRequest();
+
+                // Show progress
+                progressWrap.classList.add('progress-wrap--active');
+                progressFill.style.width = '0%';
+                progressText.textContent = 'Enviando...';
+                feedback.textContent = '';
+                feedback.className = 'feedback';
+
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const pct = Math.round((e.loaded / e.total) * 100);
+                        progressFill.style.width = pct + '%';
+                        progressText.textContent = `Enviando... ${pct}%`;
+                    }
+                });
+
+                xhr.addEventListener('load', () => {
+                    progressFill.style.width = '100%';
+                    progressText.textContent = 'Processando...';
+
+                    try {
+                        const data = JSON.parse(xhr.responseText);
+                        if (data.success) {
+                            feedback.textContent = '✅ Foto enviada com sucesso!';
+                            feedback.className = 'feedback feedback--success';
+                            addPhotoToGallery(data.photo);
+                        } else {
+                            feedback.textContent = '❌ ' + (data.error || 'Erro ao enviar.');
+                            feedback.className = 'feedback feedback--error';
+                        }
+                    } catch {
+                        feedback.textContent = '❌ Erro ao enviar a foto.';
+                        feedback.className = 'feedback feedback--error';
+                    }
+
+                    setTimeout(() => {
+                        progressWrap.classList.remove('progress-wrap--active');
+                    }, 1000);
+                    resolve();
+                });
+
+                xhr.addEventListener('error', () => {
+                    feedback.textContent = '❌ Falha na conexão. Tente novamente.';
+                    feedback.className = 'feedback feedback--error';
+                    progressWrap.classList.remove('progress-wrap--active');
+                    resolve();
+                });
+
+                xhr.open('POST', '/api/photos');
+                xhr.send(formData);
+            });
+        }
+
+        // Gallery
+        function addPhotoToGallery(photo, prepend = true) {
+            const item = document.createElement('div');
+            item.className = 'gallery__item';
+            item.innerHTML = `
+        <img src="/uploads/thumbs/${photo.thumb_filename}" alt="Foto" loading="lazy" />
+        <span class="gallery__item-name">${photo.guest_name || 'Anônimo'}</span>
+      `;
+            if (prepend) gallery.prepend(item);
+            else gallery.appendChild(item);
+
+            // Animate in
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => item.classList.add('gallery__item--visible'));
+            });
+        }
+
+        // Load existing photos
+        async function loadGallery() {
+            try {
+                const res = await fetch('/api/photos');
+                const photos = await res.json();
+                if (photos.length === 0) {
+                    gallery.innerHTML = '<p class="empty-gallery">Nenhuma foto ainda. Seja o primeiro! 📸</p>';
+                } else {
+                    gallery.innerHTML = '';
+                    photos.forEach(p => addPhotoToGallery(p, false));
+                }
+            } catch {
+                gallery.innerHTML = '<p class="empty-gallery">Erro ao carregar fotos.</p>';
+            }
+        }
+
+        loadGallery();
+
+        // Real-time: listen for new photos via SSE
+        const evtSource = new EventSource('/api/photos/stream');
+        evtSource.addEventListener('message', (e) => {
+            try {
+                const photo = JSON.parse(e.data);
+                // Remove empty state message if present
+                const empty = gallery.querySelector('.empty-gallery');
+                if (empty) empty.remove();
+                addPhotoToGallery(photo, true);
+            } catch { }
+        });
+    </script>
+</body>
+
+</html>

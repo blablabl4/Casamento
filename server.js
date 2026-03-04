@@ -7,6 +7,8 @@ const path = require('path');
 const Database = require('better-sqlite3');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const multer = require('multer');
+const sharp = require('sharp');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,9 +23,11 @@ const dbPath = path.join(__dirname, 'data', 'wedding.db');
 
 // Ensure data directory exists
 const fs = require('fs');
-if (!fs.existsSync(path.join(__dirname, 'data'))) {
-    fs.mkdirSync(path.join(__dirname, 'data'), { recursive: true });
-}
+const uploadsDir = path.join(__dirname, 'uploads', 'photos');
+const thumbsDir = path.join(__dirname, 'uploads', 'thumbs');
+[path.join(__dirname, 'data'), uploadsDir, thumbsDir].forEach(dir => {
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+});
 
 const db = new Database(dbPath);
 db.pragma('journal_mode = WAL');
@@ -56,6 +60,18 @@ db.exec(`
 
   CREATE TABLE IF NOT EXISTS sessions (
     token TEXT PRIMARY KEY,
+    created_at TEXT DEFAULT (datetime('now', 'localtime'))
+  );
+
+  CREATE TABLE IF NOT EXISTS photos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    filename TEXT NOT NULL,
+    thumb_filename TEXT NOT NULL,
+    original_name TEXT,
+    guest_name TEXT DEFAULT 'Anônimo',
+    size INTEGER DEFAULT 0,
+    width INTEGER DEFAULT 0,
+    height INTEGER DEFAULT 0,
     created_at TEXT DEFAULT (datetime('now', 'localtime'))
   );
 `);
@@ -219,9 +235,131 @@ app.get('/api/rsvp/export', (req, res) => {
     res.send(csv);
 });
 
+// ---------- PHOTO UPLOAD SYSTEM ----------
+
+// Multer storage config
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, uploadsDir),
+    filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname) || '.jpg';
+        const name = `photo_${Date.now()}_${crypto.randomBytes(4).toString('hex')}${ext}`;
+        cb(null, name);
+    }
+});
+
+const upload = multer({
+    storage,
+    limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max
+    fileFilter: (req, file, cb) => {
+        const allowed = /jpeg|jpg|png|heic|heif|webp|gif/i;
+        const ext = path.extname(file.originalname).replace('.', '');
+        const mime = file.mimetype.startsWith('image/');
+        if (mime || allowed.test(ext)) cb(null, true);
+        else cb(new Error('Apenas imagens são permitidas.'));
+    }
+});
+
+// SSE clients for real-time gallery
+const sseClients = new Set();
+
+function broadcastPhoto(photo) {
+    const data = JSON.stringify(photo);
+    sseClients.forEach(res => {
+        res.write(`data: ${data}\n\n`);
+    });
+}
+
+// SSE stream endpoint
+app.get('/api/photos/stream', (req, res) => {
+    res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'X-Accel-Buffering': 'no'
+    });
+    res.write('\n');
+    sseClients.add(res);
+    req.on('close', () => sseClients.delete(res));
+});
+
+// Upload photo (public)
+app.post('/api/photos', upload.single('photo'), async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ error: 'Nenhuma foto enviada.' });
+
+        const guestName = (req.body.guest_name || 'Anônimo').trim();
+        const filename = req.file.filename;
+        const thumbFilename = `thumb_${filename.replace(path.extname(filename), '.webp')}`;
+
+        // Generate thumbnail with sharp
+        const meta = await sharp(req.file.path)
+            .rotate() // auto-rotate based on EXIF
+            .metadata();
+
+        await sharp(req.file.path)
+            .rotate()
+            .resize(600, 600, { fit: 'inside', withoutEnlargement: true })
+            .webp({ quality: 80 })
+            .toFile(path.join(thumbsDir, thumbFilename));
+
+        const result = db.prepare(
+            'INSERT INTO photos (filename, thumb_filename, original_name, guest_name, size, width, height) VALUES (?, ?, ?, ?, ?, ?, ?)'
+        ).run(filename, thumbFilename, req.file.originalname, guestName, req.file.size, meta.width || 0, meta.height || 0);
+
+        const photo = {
+            id: result.lastInsertRowid,
+            filename, thumb_filename: thumbFilename,
+            guest_name: guestName,
+            width: meta.width || 0, height: meta.height || 0,
+            created_at: new Date().toISOString()
+        };
+
+        // Broadcast to connected telão clients
+        broadcastPhoto(photo);
+
+        res.json({ success: true, photo });
+    } catch (err) {
+        console.error('Upload error:', err);
+        res.status(500).json({ error: 'Erro ao processar a foto.' });
+    }
+});
+
+// List photos (public, for gallery)
+app.get('/api/photos', (req, res) => {
+    const list = db.prepare('SELECT * FROM photos ORDER BY created_at DESC').all();
+    res.json(list);
+});
+
+// Serve uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Delete photo (admin)
+app.delete('/api/photos/:id', requireAdmin, (req, res) => {
+    const photo = db.prepare('SELECT * FROM photos WHERE id = ?').get(req.params.id);
+    if (!photo) return res.status(404).json({ error: 'Foto não encontrada.' });
+
+    // Delete files
+    const photoPath = path.join(uploadsDir, photo.filename);
+    const thumbPath = path.join(thumbsDir, photo.thumb_filename);
+    if (fs.existsSync(photoPath)) fs.unlinkSync(photoPath);
+    if (fs.existsSync(thumbPath)) fs.unlinkSync(thumbPath);
+
+    db.prepare('DELETE FROM photos WHERE id = ?').run(req.params.id);
+    res.json({ success: true });
+});
+
+// Photo stats (admin)
+app.get('/api/photos/stats', requireAdmin, (req, res) => {
+    const total = db.prepare('SELECT count(*) as c FROM photos').get().c;
+    const totalSize = db.prepare('SELECT COALESCE(SUM(size), 0) as s FROM photos').get().s;
+    res.json({ total, totalSizeMB: (totalSize / (1024 * 1024)).toFixed(1) });
+});
+
 // ---------- START ----------
 app.listen(PORT, () => {
     console.log(`🎊  Wedding server running on http://localhost:${PORT}`);
     console.log(`📋  Admin panel: http://localhost:${PORT}/admin.html`);
+    console.log(`📸  Photo upload: http://localhost:${PORT}/fotos.html`);
+    console.log(`📺  Telão: http://localhost:${PORT}/telao.html`);
     console.log(`🔑  Default login: admin / casamento2026`);
 });
