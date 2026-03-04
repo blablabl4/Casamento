@@ -939,6 +939,11 @@ a {
   pointer-events: auto;
 }
 
+/* Make overlay interactive when parent modal is open (for photo modal which doesn't use brush animation) */
+.rsvp-modal--open .rsvp-modal__overlay {
+  pointer-events: auto;
+}
+
 .rsvp-modal__form-inner {
   background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(16px);
