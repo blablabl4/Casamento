@@ -507,9 +507,14 @@
      GALLERY MOSAIC — Load photos from API
      ============================================ */
   const galleryMosaic = document.getElementById('gallery-mosaic');
+  const mosaicDisplayedIds = new Set();
 
   function addMosaicItem(photo, prepend) {
     if (!galleryMosaic) return;
+    // Prevent duplicates (upload + SSE both fire)
+    if (photo.id && mosaicDisplayedIds.has(photo.id)) return;
+    if (photo.id) mosaicDisplayedIds.add(photo.id);
+
     const item = document.createElement('div');
     item.className = 'gallery-mosaic__item';
     item.style.opacity = '0';
