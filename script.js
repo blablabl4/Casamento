@@ -313,15 +313,16 @@
     rsvpModal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
 
-    // Reset the form so a new guest can use it
-    const btn = document.getElementById('rsvp-btn');
-    btn.disabled = false;
-    btn.textContent = 'Confirmar';
-    document.getElementById('rsvp-name').value = '';
-    const checked = rsvpForm.querySelector('input[name="presence"]:checked');
-    if (checked) checked.checked = false;
-    rsvpFeedback.textContent = '';
-    rsvpFeedback.className = 'rsvp-modal__feedback';
+    // Full reset so next guest can use it
+    setTimeout(() => {
+      const btn = document.getElementById('rsvp-btn');
+      btn.disabled = false;
+      btn.textContent = 'Confirmar';
+      document.getElementById('rsvp-name').value = '';
+      rsvpForm.querySelectorAll('input[name="presence"]').forEach(r => r.checked = false);
+      rsvpFeedback.textContent = '';
+      rsvpFeedback.className = 'rsvp-modal__feedback';
+    }, 400); // delay reset until after fade-out animation
   }
 
   document.getElementById('open-rsvp').addEventListener('click', openRsvpModal);
@@ -334,6 +335,7 @@
 
   rsvpForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    e.stopPropagation();
     const name = document.getElementById('rsvp-name').value.trim();
     const presence = rsvpForm.querySelector('input[name="presence"]:checked');
     if (!name || !presence) {
@@ -360,6 +362,9 @@
           : `Sentiremos sua falta, ${first}. Obrigado por nos avisar.`;
         rsvpFeedback.className = 'rsvp-modal__feedback rsvp-modal__feedback--success';
         btn.textContent = 'Confirmado ✓';
+
+        // Auto-close modal after 2 seconds
+        setTimeout(() => closeRsvpModal(), 2000);
       } else {
         throw new Error(data.error || 'Erro desconhecido');
       }
