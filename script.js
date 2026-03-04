@@ -381,4 +381,63 @@
     if (e.key === 'Escape') { closeGiftModal(); closeRsvpModal(); }
   });
 
+  /* ============================================
+     GALLERY MOSAIC — Load photos from API
+     ============================================ */
+  const galleryMosaic = document.getElementById('gallery-mosaic');
+  if (galleryMosaic) {
+    function addMosaicItem(photo, prepend) {
+      const item = document.createElement('div');
+      item.className = 'gallery-mosaic__item';
+      item.style.opacity = '0';
+      item.style.transform = 'scale(0.9)';
+      item.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+      item.innerHTML = `
+        <img src="/uploads/thumbs/${photo.thumb_filename}" alt="Foto" loading="lazy" />
+        <div class="gallery-mosaic__overlay">
+          <span class="gallery-mosaic__name">${photo.guest_name || 'Anônimo'}</span>
+        </div>
+      `;
+      if (prepend) galleryMosaic.prepend(item);
+      else galleryMosaic.appendChild(item);
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          item.style.opacity = '1';
+          item.style.transform = 'scale(1)';
+        });
+      });
+    }
+
+    async function loadMosaic() {
+      try {
+        const res = await fetch('/api/photos');
+        const photos = await res.json();
+        galleryMosaic.innerHTML = '';
+        if (photos.length === 0) {
+          galleryMosaic.innerHTML = '<p class="gallery-mosaic__empty">As fotos dos convidados aparecerão aqui 📸</p>';
+        } else {
+          photos.forEach((p, i) => {
+            setTimeout(() => addMosaicItem(p, false), i * 60);
+          });
+        }
+      } catch { }
+    }
+
+    loadMosaic();
+
+    // Real-time: new photos appear instantly
+    try {
+      const sse = new EventSource('/api/photos/stream');
+      sse.addEventListener('message', (e) => {
+        try {
+          const photo = JSON.parse(e.data);
+          const empty = galleryMosaic.querySelector('.gallery-mosaic__empty');
+          if (empty) empty.remove();
+          addMosaicItem(photo, true);
+        } catch { }
+      });
+    } catch { }
+  }
+
 })();

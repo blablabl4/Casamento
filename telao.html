@@ -14,9 +14,12 @@
         :root {
             --cream: #FAF7F2;
             --warm-white: #F5F0E8;
+            --sand: #D4C5A9;
             --gold: #C6A96C;
             --gold-light: #D4BC82;
+            --gold-dark: #A8894E;
             --charcoal: #2A2A26;
+            --gray-text: #6B6B63;
             --gray-soft: #9A9A90;
             --ff-serif: 'Cormorant Garamond', Georgia, serif;
             --ff-sans: 'Questrial', 'Helvetica Neue', sans-serif;
@@ -34,6 +37,7 @@
             color: var(--cream);
             min-height: 100vh;
             overflow: hidden;
+            letter-spacing: 0.04em;
         }
 
         /* Header bar */
@@ -58,9 +62,11 @@
         }
 
         .telao-header__count {
-            font-size: 0.8rem;
+            font-family: var(--ff-sans);
+            font-size: 0.75rem;
             color: var(--gray-soft);
-            letter-spacing: 0.1em;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
         }
 
         /* Masonry grid */
@@ -69,13 +75,13 @@
             inset: 0;
             padding: 4.5rem 1rem 1rem;
             column-count: 4;
-            column-gap: 10px;
+            column-gap: 8px;
             overflow-y: auto;
         }
 
         .masonry__item {
             break-inside: avoid;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             position: relative;
             overflow: hidden;
             opacity: 0;
@@ -101,38 +107,42 @@
             left: 0;
             right: 0;
             padding: 8px 12px;
-            background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.5));
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
         }
 
         .masonry__item-name {
-            font-size: 0.72rem;
+            font-family: var(--ff-sans);
+            font-size: 0.65rem;
             color: rgba(255, 255, 255, 0.85);
-            letter-spacing: 0.04em;
+            letter-spacing: 0.06em;
         }
 
         .masonry__item-time {
-            font-size: 0.6rem;
-            color: rgba(255, 255, 255, 0.5);
+            font-family: var(--ff-sans);
+            font-size: 0.55rem;
+            color: rgba(255, 255, 255, 0.45);
+            letter-spacing: 0.04em;
         }
 
         /* New photo highlight */
         .masonry__item--new {
-            box-shadow: 0 0 0 3px var(--gold), 0 0 30px rgba(198, 169, 108, 0.4);
+            box-shadow: 0 0 0 2px var(--gold), 0 0 30px rgba(198, 169, 108, 0.3);
         }
 
         .masonry__item--new::after {
-            content: 'NOVA!';
+            content: 'NOVA';
             position: absolute;
             top: 8px;
             right: 8px;
             background: var(--gold);
             color: var(--charcoal);
-            font-size: 0.55rem;
+            font-family: var(--ff-sans);
+            font-size: 0.5rem;
             font-weight: 700;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.15em;
             padding: 2px 8px;
         }
 
@@ -150,7 +160,7 @@
         .empty-state__icon {
             font-size: 4rem;
             margin-bottom: 1rem;
-            opacity: 0.4;
+            opacity: 0.3;
         }
 
         .empty-state__text {
@@ -161,9 +171,11 @@
         }
 
         .empty-state__hint {
-            font-size: 0.85rem;
-            color: rgba(154, 154, 144, 0.5);
+            font-family: var(--ff-sans);
+            font-size: 0.8rem;
+            color: rgba(154, 154, 144, 0.4);
             margin-top: 0.5rem;
+            letter-spacing: 0.06em;
         }
 
         /* Responsive */
@@ -211,12 +223,17 @@
         const emptyState = document.getElementById('empty-state');
         const photoCount = document.getElementById('photo-count');
         let count = 0;
+        const displayedIds = new Set();
 
         function updateCount() {
             photoCount.textContent = count + (count === 1 ? ' foto' : ' fotos');
         }
 
         function addPhoto(photo, isNew = false) {
+            // Prevent duplicates
+            if (displayedIds.has(photo.id)) return;
+            displayedIds.add(photo.id);
+
             emptyState.style.display = 'none';
 
             const item = document.createElement('div');
@@ -234,10 +251,8 @@
         </div>
       `;
 
-            // Prepend new photos, append existing
             if (isNew) {
                 masonry.prepend(item);
-                // Remove "new" highlight after 8 seconds
                 setTimeout(() => item.classList.remove('masonry__item--new'), 8000);
             } else {
                 item.style.animationDelay = (count * 0.05) + 's';
@@ -248,7 +263,6 @@
             updateCount();
         }
 
-        // Load existing photos
         async function loadPhotos() {
             try {
                 const res = await fetch('/api/photos');
@@ -266,7 +280,6 @@
 
         loadPhotos();
 
-        // Real-time updates via SSE
         const evtSource = new EventSource('/api/photos/stream');
         evtSource.addEventListener('message', (e) => {
             try {
@@ -275,11 +288,8 @@
             } catch { }
         });
 
-        // Reconnect on error
         evtSource.addEventListener('error', () => {
-            setTimeout(() => {
-                window.location.reload();
-            }, 5000);
+            setTimeout(() => window.location.reload(), 5000);
         });
     </script>
 </body>

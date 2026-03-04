@@ -39,6 +39,11 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            line-height: 1.75;
+            letter-spacing: 0.04em;
+            background-image:
+                radial-gradient(ellipse at 20% 50%, rgba(212, 197, 169, 0.12) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(198, 169, 108, 0.06) 0%, transparent 50%);
         }
 
         .header {
@@ -55,6 +60,7 @@
         }
 
         .header p {
+            font-family: var(--ff-sans);
             font-size: 0.85rem;
             color: var(--gray-soft);
             letter-spacing: 0.04em;
@@ -69,7 +75,7 @@
             border: 2px dashed var(--sand);
             text-align: center;
             cursor: pointer;
-            transition: all 0.4s ease;
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             position: relative;
         }
 
@@ -85,11 +91,13 @@
         }
 
         .upload-area__text {
-            font-size: 0.9rem;
+            font-family: var(--ff-sans);
+            font-size: 0.88rem;
             color: var(--gray-text);
         }
 
         .upload-area__hint {
+            font-family: var(--ff-sans);
             font-size: 0.72rem;
             color: var(--gray-soft);
             margin-top: 0.4rem;
@@ -104,24 +112,27 @@
             width: 90%;
             max-width: 440px;
             margin: 0 auto 1rem;
-            display: flex;
-            gap: 0.5rem;
         }
 
         .name-row input {
-            flex: 1;
+            width: 100%;
             padding: 0.7rem 1rem;
             font-family: var(--ff-sans);
             font-size: 0.85rem;
             border: 1px solid var(--sand);
-            background: white;
+            background: rgba(255, 255, 255, 0.7);
             color: var(--charcoal);
             outline: none;
             transition: border-color 0.3s;
+            letter-spacing: 0.04em;
         }
 
         .name-row input:focus {
             border-color: var(--gold);
+        }
+
+        .name-row input::placeholder {
+            color: var(--gray-soft);
         }
 
         /* Progress */
@@ -138,7 +149,7 @@
 
         .progress-bar {
             width: 100%;
-            height: 4px;
+            height: 3px;
             background: var(--sand);
             overflow: hidden;
             margin-bottom: 0.5rem;
@@ -152,9 +163,12 @@
         }
 
         .progress-text {
-            font-size: 0.78rem;
+            font-family: var(--ff-sans);
+            font-size: 0.75rem;
             color: var(--gray-soft);
             text-align: center;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
         }
 
         /* Feedback */
@@ -163,16 +177,18 @@
             max-width: 440px;
             margin: 0.5rem auto;
             text-align: center;
-            font-size: 0.85rem;
+            font-family: var(--ff-sans);
+            font-size: 0.82rem;
             min-height: 1.5em;
+            letter-spacing: 0.03em;
         }
 
         .feedback--success {
-            color: #4ade80;
+            color: var(--gold-dark);
         }
 
         .feedback--error {
-            color: #f87171;
+            color: #c0392b;
         }
 
         /* Gallery */
@@ -191,7 +207,7 @@
             margin: 0 auto 3rem;
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 8px;
+            gap: 6px;
         }
 
         .gallery__item {
@@ -222,15 +238,17 @@
             left: 0;
             right: 0;
             padding: 4px 8px;
-            background: linear-gradient(transparent, rgba(0, 0, 0, 0.5));
-            color: white;
-            font-size: 0.65rem;
-            letter-spacing: 0.03em;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.45));
+            color: rgba(255, 255, 255, 0.9);
+            font-family: var(--ff-sans);
+            font-size: 0.6rem;
+            letter-spacing: 0.04em;
         }
 
         .empty-gallery {
             text-align: center;
             color: var(--gray-soft);
+            font-family: var(--ff-sans);
             font-size: 0.85rem;
             padding: 2rem;
         }
@@ -239,10 +257,12 @@
         .back-link {
             display: inline-block;
             margin: 1rem;
-            font-size: 0.8rem;
+            font-family: var(--ff-sans);
+            font-size: 0.75rem;
             color: var(--gold);
             text-decoration: none;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
             transition: color 0.3s;
         }
 
@@ -292,10 +312,11 @@
         const feedback = document.getElementById('feedback');
         const gallery = document.getElementById('gallery');
 
-        // Click to open camera/gallery
+        // Track IDs already displayed to prevent duplicates from SSE
+        const displayedIds = new Set();
+
         uploadArea.addEventListener('click', () => photoInput.click());
 
-        // Drag & drop
         uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
             uploadArea.classList.add('upload-area--active');
@@ -307,7 +328,6 @@
             handleFiles(e.dataTransfer.files);
         });
 
-        // File selected
         photoInput.addEventListener('change', () => {
             if (photoInput.files.length > 0) handleFiles(photoInput.files);
         });
@@ -328,7 +348,6 @@
 
                 const xhr = new XMLHttpRequest();
 
-                // Show progress
                 progressWrap.classList.add('progress-wrap--active');
                 progressFill.style.width = '0%';
                 progressText.textContent = 'Enviando...';
@@ -350,15 +369,17 @@
                     try {
                         const data = JSON.parse(xhr.responseText);
                         if (data.success) {
-                            feedback.textContent = '✅ Foto enviada com sucesso!';
+                            feedback.textContent = '✓ Foto enviada com sucesso!';
                             feedback.className = 'feedback feedback--success';
+                            // Mark as displayed so SSE won't duplicate
+                            displayedIds.add(data.photo.id);
                             addPhotoToGallery(data.photo);
                         } else {
-                            feedback.textContent = '❌ ' + (data.error || 'Erro ao enviar.');
+                            feedback.textContent = data.error || 'Erro ao enviar.';
                             feedback.className = 'feedback feedback--error';
                         }
                     } catch {
-                        feedback.textContent = '❌ Erro ao enviar a foto.';
+                        feedback.textContent = 'Erro ao enviar a foto.';
                         feedback.className = 'feedback feedback--error';
                     }
 
@@ -369,7 +390,7 @@
                 });
 
                 xhr.addEventListener('error', () => {
-                    feedback.textContent = '❌ Falha na conexão. Tente novamente.';
+                    feedback.textContent = 'Falha na conexão. Tente novamente.';
                     feedback.className = 'feedback feedback--error';
                     progressWrap.classList.remove('progress-wrap--active');
                     resolve();
@@ -380,10 +401,16 @@
             });
         }
 
-        // Gallery
         function addPhotoToGallery(photo, prepend = true) {
+            if (displayedIds.has(photo.id)) {
+                // Check if it's truly already in the DOM
+                if (gallery.querySelector(`[data-photo-id="${photo.id}"]`)) return;
+            }
+            displayedIds.add(photo.id);
+
             const item = document.createElement('div');
             item.className = 'gallery__item';
+            item.dataset.photoId = photo.id;
             item.innerHTML = `
         <img src="/uploads/thumbs/${photo.thumb_filename}" alt="Foto" loading="lazy" />
         <span class="gallery__item-name">${photo.guest_name || 'Anônimo'}</span>
@@ -391,13 +418,11 @@
             if (prepend) gallery.prepend(item);
             else gallery.appendChild(item);
 
-            // Animate in
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => item.classList.add('gallery__item--visible'));
             });
         }
 
-        // Load existing photos
         async function loadGallery() {
             try {
                 const res = await fetch('/api/photos');
@@ -415,12 +440,11 @@
 
         loadGallery();
 
-        // Real-time: listen for new photos via SSE
+        // Real-time via SSE (won't duplicate thanks to displayedIds tracking)
         const evtSource = new EventSource('/api/photos/stream');
         evtSource.addEventListener('message', (e) => {
             try {
                 const photo = JSON.parse(e.data);
-                // Remove empty state message if present
                 const empty = gallery.querySelector('.empty-gallery');
                 if (empty) empty.remove();
                 addPhotoToGallery(photo, true);
