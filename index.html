@@ -171,7 +171,7 @@
       </div>
       <div class="gallery-mosaic reveal" id="gallery-mosaic"></div>
       <div class="reveal" style="text-align:center; margin-top:var(--space-md);">
-        <a href="/fotos.html" class="btn btn--outline">📸 Envie sua foto</a>
+        <button class="btn btn--outline" id="open-photo-modal">📸 Envie sua foto</button>
       </div>
     </div>
   </section>
@@ -249,6 +249,38 @@
         <div class="modal__pix-key">
           <span id="pix-key">seuemail@email.com</span>
           <button class="btn btn--small" id="copy-pix">Copiar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== PHOTO UPLOAD MODAL ========== -->
+  <div class="rsvp-modal" id="photo-modal" aria-hidden="true">
+    <div class="rsvp-modal__backdrop"></div>
+    <div class="rsvp-modal__stage">
+      <button class="rsvp-modal__close" aria-label="Fechar">&times;</button>
+      <div class="rsvp-modal__canvas" style="background:var(--cream);">
+        <div class="rsvp-modal__overlay rsvp-form--visible" style="opacity:1;pointer-events:auto;">
+          <div class="rsvp-modal__form-inner">
+            <h3 class="rsvp-modal__title">📸 Envie sua Foto</h3>
+            <p class="rsvp-modal__subtitle">Compartilhe os melhores momentos — <strong>qualidade original</strong></p>
+            <div class="rsvp-modal__form" style="display:flex; flex-direction:column; gap:12px;">
+              <input type="text" id="photo-guest-name" class="rsvp-modal__input" placeholder="Seu nome (opcional)" />
+              <label class="photo-upload-area" id="photo-upload-area">
+                <span class="photo-upload-area__icon">📷</span>
+                <span class="photo-upload-area__text">Toque para tirar uma foto ou escolher da galeria</span>
+                <span class="photo-upload-area__hint">Até 50MB • qualidade original</span>
+                <input type="file" id="photo-file-input" accept="image/*" capture="environment" style="display:none;" />
+              </label>
+              <div class="photo-progress" id="photo-progress" style="display:none;">
+                <div class="photo-progress__bar">
+                  <div class="photo-progress__fill" id="photo-progress-fill"></div>
+                </div>
+                <span class="photo-progress__text" id="photo-progress-text">Enviando...</span>
+              </div>
+              <div id="photo-feedback" class="rsvp-modal__feedback" aria-live="polite"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -285,7 +285,12 @@
     );
   }
 
+  let rsvpAutoCloseTimer = null;
+
   function openRsvpModal() {
+    // Cancel any pending auto-close
+    if (rsvpAutoCloseTimer) { clearTimeout(rsvpAutoCloseTimer); rsvpAutoCloseTimer = null; }
+
     rsvpModal.classList.add('rsvp-modal--open');
     rsvpModal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
@@ -309,20 +314,27 @@
   }
 
   function closeRsvpModal() {
+    // Cancel pending auto-close so it doesn't fire again
+    if (rsvpAutoCloseTimer) { clearTimeout(rsvpAutoCloseTimer); rsvpAutoCloseTimer = null; }
+
     rsvpModal.classList.remove('rsvp-modal--open');
     rsvpModal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
 
-    // Full reset so next guest can use it
+    // Full reset so next guest can use it (delayed for fade-out)
     setTimeout(() => {
       const btn = document.getElementById('rsvp-btn');
-      btn.disabled = false;
-      btn.textContent = 'Confirmar';
-      document.getElementById('rsvp-name').value = '';
-      rsvpForm.querySelectorAll('input[name="presence"]').forEach(r => r.checked = false);
-      rsvpFeedback.textContent = '';
-      rsvpFeedback.className = 'rsvp-modal__feedback';
-    }, 400); // delay reset until after fade-out animation
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Confirmar';
+      }
+      const nameInput = document.getElementById('rsvp-name');
+      if (nameInput) nameInput.value = '';
+      const rForm = document.getElementById('rsvp-form');
+      if (rForm) rForm.querySelectorAll('input[name="presence"]').forEach(r => r.checked = false);
+      const fb = document.getElementById('rsvp-feedback');
+      if (fb) { fb.textContent = ''; fb.className = 'rsvp-modal__feedback'; }
+    }, 400);
   }
 
   document.getElementById('open-rsvp').addEventListener('click', openRsvpModal);
@@ -363,8 +375,8 @@
         rsvpFeedback.className = 'rsvp-modal__feedback rsvp-modal__feedback--success';
         btn.textContent = 'Confirmado ✓';
 
-        // Auto-close modal after 2 seconds
-        setTimeout(() => closeRsvpModal(), 2000);
+        // Auto-close modal after 2 seconds (cancellable)
+        rsvpAutoCloseTimer = setTimeout(() => closeRsvpModal(), 2000);
       } else {
         throw new Error(data.error || 'Erro desconhecido');
       }
@@ -376,39 +388,151 @@
     }
   });
 
+  /* ============================================
+     PHOTO UPLOAD MODAL
+     ============================================ */
+  const photoModal = document.getElementById('photo-modal');
+  if (photoModal) {
+    const photoFileInput = document.getElementById('photo-file-input');
+    const photoProgress = document.getElementById('photo-progress');
+    const photoProgressFill = document.getElementById('photo-progress-fill');
+    const photoProgressText = document.getElementById('photo-progress-text');
+    const photoFeedback = document.getElementById('photo-feedback');
+
+    function openPhotoModal() {
+      photoModal.classList.add('rsvp-modal--open');
+      photoModal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePhotoModal() {
+      photoModal.classList.remove('rsvp-modal--open');
+      photoModal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      // Reset state
+      setTimeout(() => {
+        photoFeedback.textContent = '';
+        photoFeedback.className = 'rsvp-modal__feedback';
+        photoProgress.style.display = 'none';
+        photoProgressFill.style.width = '0%';
+      }, 400);
+    }
+
+    document.getElementById('open-photo-modal').addEventListener('click', openPhotoModal);
+    photoModal.querySelector('.rsvp-modal__close').addEventListener('click', closePhotoModal);
+    photoModal.querySelector('.rsvp-modal__backdrop').addEventListener('click', closePhotoModal);
+
+    // File input trigger
+    photoFileInput.addEventListener('change', () => {
+      if (photoFileInput.files.length > 0) {
+        uploadPhoto(photoFileInput.files[0]);
+        photoFileInput.value = '';
+      }
+    });
+
+    function uploadPhoto(file) {
+      const guestName = (document.getElementById('photo-guest-name').value.trim()) || 'Anônimo';
+      const formData = new FormData();
+      formData.append('photo', file);
+      formData.append('guest_name', guestName);
+
+      const xhr = new XMLHttpRequest();
+
+      photoProgress.style.display = 'block';
+      photoProgressFill.style.width = '0%';
+      photoProgressText.textContent = 'Enviando...';
+      photoFeedback.textContent = '';
+      photoFeedback.className = 'rsvp-modal__feedback';
+
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          const pct = Math.round((e.loaded / e.total) * 100);
+          photoProgressFill.style.width = pct + '%';
+          photoProgressText.textContent = `Enviando... ${pct}%`;
+        }
+      });
+
+      xhr.addEventListener('load', () => {
+        photoProgressFill.style.width = '100%';
+        try {
+          const data = JSON.parse(xhr.responseText);
+          if (data.success) {
+            photoFeedback.textContent = '✓ Foto enviada com sucesso!';
+            photoFeedback.className = 'rsvp-modal__feedback rsvp-modal__feedback--success';
+            // Refresh mosaic
+            if (galleryMosaic) {
+              const empty = galleryMosaic.querySelector('.gallery-mosaic__empty');
+              if (empty) empty.remove();
+              addMosaicItem(data.photo, true);
+            }
+          } else {
+            photoFeedback.textContent = data.error || 'Erro ao enviar.';
+            photoFeedback.className = 'rsvp-modal__feedback rsvp-modal__feedback--error';
+          }
+        } catch {
+          photoFeedback.textContent = 'Erro ao enviar a foto.';
+          photoFeedback.className = 'rsvp-modal__feedback rsvp-modal__feedback--error';
+        }
+        setTimeout(() => { photoProgress.style.display = 'none'; }, 1500);
+      });
+
+      xhr.addEventListener('error', () => {
+        photoFeedback.textContent = 'Falha na conexão.';
+        photoFeedback.className = 'rsvp-modal__feedback rsvp-modal__feedback--error';
+        photoProgress.style.display = 'none';
+      });
+
+      xhr.open('POST', '/api/photos');
+      xhr.send(formData);
+    }
+  }
+
   /* ---------- ESCAPE KEY ---------- */
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') { closeGiftModal(); closeRsvpModal(); }
+    if (e.key === 'Escape') {
+      closeGiftModal();
+      closeRsvpModal();
+      if (photoModal) {
+        const closePhotoFn = () => {
+          photoModal.classList.remove('rsvp-modal--open');
+          photoModal.setAttribute('aria-hidden', 'true');
+          document.body.style.overflow = '';
+        };
+        closePhotoFn();
+      }
+    }
   });
 
   /* ============================================
      GALLERY MOSAIC — Load photos from API
      ============================================ */
   const galleryMosaic = document.getElementById('gallery-mosaic');
-  if (galleryMosaic) {
-    function addMosaicItem(photo, prepend) {
-      const item = document.createElement('div');
-      item.className = 'gallery-mosaic__item';
-      item.style.opacity = '0';
-      item.style.transform = 'scale(0.9)';
-      item.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-      item.innerHTML = `
-        <img src="/uploads/thumbs/${photo.thumb_filename}" alt="Foto" loading="lazy" />
-        <div class="gallery-mosaic__overlay">
-          <span class="gallery-mosaic__name">${photo.guest_name || 'Anônimo'}</span>
-        </div>
-      `;
-      if (prepend) galleryMosaic.prepend(item);
-      else galleryMosaic.appendChild(item);
 
+  function addMosaicItem(photo, prepend) {
+    if (!galleryMosaic) return;
+    const item = document.createElement('div');
+    item.className = 'gallery-mosaic__item';
+    item.style.opacity = '0';
+    item.style.transform = 'scale(0.9)';
+    item.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    item.innerHTML = `
+      <img src="/uploads/thumbs/${photo.thumb_filename}" alt="Foto" loading="lazy" />
+      <div class="gallery-mosaic__overlay">
+        <span class="gallery-mosaic__name">${photo.guest_name || 'Anônimo'}</span>
+      </div>
+    `;
+    if (prepend) galleryMosaic.prepend(item);
+    else galleryMosaic.appendChild(item);
+
+    requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          item.style.opacity = '1';
-          item.style.transform = 'scale(1)';
-        });
+        item.style.opacity = '1';
+        item.style.transform = 'scale(1)';
       });
-    }
+    });
+  }
 
+  if (galleryMosaic) {
     async function loadMosaic() {
       try {
         const res = await fetch('/api/photos');

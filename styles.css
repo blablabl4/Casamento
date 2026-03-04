@@ -655,6 +655,67 @@ a {
   }
 }
 
+/* Photo upload area inside modal */
+.photo-upload-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 1.5rem 1rem;
+  border: 2px dashed var(--sand);
+  cursor: pointer;
+  transition: all 0.4s ease;
+  text-align: center;
+}
+
+.photo-upload-area:hover {
+  border-color: var(--gold);
+  background: rgba(198, 169, 108, 0.04);
+}
+
+.photo-upload-area__icon {
+  font-size: 2rem;
+}
+
+.photo-upload-area__text {
+  font-size: 0.82rem;
+  color: var(--gray-text);
+}
+
+.photo-upload-area__hint {
+  font-size: 0.68rem;
+  color: var(--gray-soft);
+}
+
+/* Photo progress */
+.photo-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.photo-progress__bar {
+  width: 100%;
+  height: 3px;
+  background: var(--sand-pale, #EDE7DA);
+  overflow: hidden;
+}
+
+.photo-progress__fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light, #D4BC82));
+  transition: width 0.15s ease;
+}
+
+.photo-progress__text {
+  font-size: 0.7rem;
+  color: var(--gray-soft);
+  text-align: center;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
 /* ============================================
    MODALS — Glassmorphism, square corners
    ============================================ */
